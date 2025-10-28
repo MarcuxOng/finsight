@@ -103,14 +103,7 @@ async def get_csv_template() -> str:
     Generate a CSV template for users.
     
     Returns:
-        CSV template string
+        CSV template string with column headers only
     """
-    template = """
-        date,description,amount,type
-        2024-01-15,Starbucks Coffee,4.50,expense
-        2024-01-16,Salary Deposit,3000.00,income
-        2024-01-17,Uber Ride,12.30,expense
-        2024-01-18,Netflix Subscription,15.99,expense
-    """
-
+    template = "date,description,amount,type\n"
     return template
