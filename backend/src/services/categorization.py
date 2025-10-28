@@ -43,7 +43,7 @@ async def categorize_transaction(description: str, amount: float) -> str:
         Category name
     """
     try:
-        model = genai.GenerativeModel('gemini-pro')
+        model = genai.GenerativeModel(settings.gemini_model)
         
         prompt = f"""Categorize the following transaction into ONE of these categories:
 {', '.join(CATEGORIES)}

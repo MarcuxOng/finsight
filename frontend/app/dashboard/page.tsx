@@ -55,13 +55,13 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#ECF4E8]">
       {/* Navigation */}
       <nav className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 items-center">
             <div className="flex items-center">
-              <h1 className="text-2xl font-bold text-blue-600">FinSight</h1>
+              <h1 className="text-2xl font-bold text-[#93BFC7]">FinSight</h1>
             </div>
             <div className="flex items-center space-x-4">
               <span className="text-sm text-gray-600">
@@ -130,7 +130,7 @@ export default function DashboardPage() {
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2">
                         <div
-                          className="bg-blue-600 h-2 rounded-full"
+                          className="bg-[#ABE7B2] h-2 rounded-full"
                           style={{ width: `${category.percentage}%` }}
                         />
                       </div>
@@ -151,8 +151,8 @@ export default function DashboardPage() {
             <div className="p-6">
               <div className="space-y-4">
                 {insights.map((insight) => (
-                  <div key={insight.id} className="border-l-4 border-blue-500 pl-4 py-2">
-                    <span className="inline-block px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded mb-2">
+                  <div key={insight.id} className="border-l-4 border-[#93BFC7] pl-4 py-2">
+                    <span className="inline-block px-2 py-1 text-xs font-medium bg-[#CBF3BB] text-gray-800 rounded mb-2">
                       {insight.type}
                     </span>
                     <p className="text-gray-700">{insight.content}</p>

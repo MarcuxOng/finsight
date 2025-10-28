@@ -21,6 +21,7 @@ class Settings(BaseSettings):
     jwt_expiration_hours: int
     
     gemini_api_key: str
+    gemini_model: str
     
     environment: str
     cors_origins: str 
