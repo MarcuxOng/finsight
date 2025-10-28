@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { api } from '@/lib/api';
-import PageHeader from '@/components/PageHeader';
+import AppLayout from '@/components/AppLayout';
+import Loading from '@/components/Loading';
 
 interface UploadResult {
   message: string;
@@ -115,14 +116,7 @@ export default function UploadPage() {
   };
 
   if (authLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-[#ECF4E8] to-[#CBF3BB] flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#93BFC7] mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
-        </div>
-      </div>
-    );
+    return <Loading />;
   }
 
   if (!user) {
@@ -130,14 +124,22 @@ export default function UploadPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#ECF4E8] to-[#CBF3BB]">
-      <div className="container mx-auto px-4 py-8">
-        <PageHeader
-          title="Upload Transactions"
-          description="Import transactions from a CSV file"
-        />
+    <AppLayout
+      title="Upload Transactions"
+      description="Import transactions from a CSV file"
+      actions={
+        <button
+          onClick={handleDownloadTemplate}
+          className="px-6 py-3 bg-white text-[#93BFC7] font-semibold rounded-lg hover:shadow-lg transition-all"
+        >
+          📥 Download Template
+        </button>
+      }
+    >
 
-        <div className="max-w-3xl mx-auto">
+      <br />
+      
+      <div className="max-w-3xl mx-auto">
           {/* Instructions Card */}
           <div className="bg-white rounded-lg shadow-md p-6 mb-6">
             <h2 className="text-lg font-semibold text-gray-800 mb-4">How to Upload</h2>
@@ -376,7 +378,6 @@ export default function UploadPage() {
             </p>
           </div>
         </div>
-      </div>
-    </div>
+    </AppLayout>
   );
 }

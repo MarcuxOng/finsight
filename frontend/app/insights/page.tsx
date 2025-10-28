@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { api } from '@/lib/api';
 import { Insight, InsightsResponse } from '@/types';
-import PageHeader from '@/components/PageHeader';
+import AppLayout from '@/components/AppLayout';
+import Loading from '@/components/Loading';
 
 export default function InsightsPage() {
   const router = useRouter();
@@ -98,32 +99,40 @@ export default function InsightsPage() {
   };
 
   if (authLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#ECF4E8] to-[#CBF3BB]">
-        <div className="text-center">
-          <svg className="animate-spin h-12 w-12 mx-auto text-[#93BFC7]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-          </svg>
-          <p className="text-gray-600 mt-4">Loading...</p>
-        </div>
-      </div>
-    );
+    return <Loading />;
   }
 
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#ECF4E8] to-[#CBF3BB] p-8">
-      <div className="max-w-7xl mx-auto">
-        <PageHeader
-          title="Financial Insights"
-          description="AI-powered analysis of your spending patterns and personalized recommendations"
-          backTo="/dashboard"
-        />
+    <AppLayout
+      title="Financial Insights"
+      description="AI-powered analysis of your spending patterns and personalized recommendations"
+      actions={
+        <button
+          onClick={handleGenerateInsights}
+          disabled={generating}
+          className="px-6 py-3 bg-white text-[#93BFC7] font-semibold rounded-lg hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {generating ? (
+            <>
+              <svg className="animate-spin -ml-1 mr-2 h-4 w-4 inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Generating...
+            </>
+          ) : (
+            '✨ Generate Insights'
+          )}
+        </button>
+      }
+    >
 
-        {/* Generate Insights Section */}
-        <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
+      <br />
+
+      {/* Generate Insights Section */}
+      <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
               <h2 className="text-xl font-semibold text-gray-900 mb-2">
@@ -370,7 +379,6 @@ export default function InsightsPage() {
             </div>
           )}
         </div>
-      </div>
-    </div>
+    </AppLayout>
   );
 }

@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { api } from '@/lib/api';
-import PageHeader from '@/components/PageHeader';
+import AppLayout from '@/components/AppLayout';
+import Loading from '@/components/Loading';
 
 interface Transaction {
   id: string;
@@ -238,14 +239,7 @@ export default function TransactionsPage() {
     .reduce((sum, t) => sum + t.amount, 0);
 
   if (authLoading || loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading transactions...</p>
-        </div>
-      </div>
-    );
+    return <Loading message="Loading transactions..." />;
   }
 
   if (!user) {
@@ -253,23 +247,22 @@ export default function TransactionsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#ECF4E8] to-[#CBF3BB]">
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <PageHeader
-          title="Transactions"
-          description="View and manage your financial transactions"
-          action={
-            <button
-              onClick={() => setShowCreateModal(true)}
-              className="px-6 py-3 bg-[#93BFC7] text-white rounded-lg hover:bg-[#7AABB5] transition font-semibold shadow-md"
-            >
-              + Add Transaction
-            </button>
-          }
-        />
-          
-        {/* Summary Cards */}
+    <AppLayout
+      title="Transactions"
+      description="View and manage your financial transactions"
+      actions={
+        <button
+          onClick={() => setShowCreateModal(true)}
+          className="px-6 py-3 bg-white text-[#93BFC7] font-semibold rounded-lg hover:shadow-lg transition-all"
+        >
+          + Add Transaction
+        </button>
+      }
+    >
+
+      <br />
+
+      {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           <div className="bg-white rounded-lg shadow p-4">
             <p className="text-sm text-gray-600">Total Transactions</p>
@@ -457,7 +450,6 @@ export default function TransactionsPage() {
             </table>
           </div>
         </div>
-      </div>
 
       {/* Edit Modal */}
       {editingTransaction && (
@@ -701,6 +693,6 @@ export default function TransactionsPage() {
           </div>
         </div>
       )}
-    </div>
+    </AppLayout>
   );
 }
