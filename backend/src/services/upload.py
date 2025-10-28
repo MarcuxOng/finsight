@@ -5,7 +5,7 @@ import pandas as pd
 from io import StringIO
 from typing import Dict
 
-from src.database import get_supabase
+from src.database import get_supabase_admin
 from src.services.categorization import categorize_transaction
 
 
@@ -44,7 +44,7 @@ async def parse_csv_file(file_content: str, user_id: str) -> Dict:
                 "errors": [f"Missing required columns: {', '.join(missing_columns)}"]
             }
         
-        supabase = get_supabase()
+        supabase = get_supabase_admin()
         
         # Process each row
         for index, row in df.iterrows():

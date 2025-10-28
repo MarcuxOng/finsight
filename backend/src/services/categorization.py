@@ -5,7 +5,7 @@ import google.generativeai as genai
 from typing import List, Dict
 
 from src.config import settings
-from src.database import get_supabase
+from src.database import get_supabase_admin
 
 # Configure Gemini
 genai.configure(api_key=settings.gemini_api_key)
@@ -78,7 +78,7 @@ async def categorize_transactions_batch(user_id: str, transaction_ids: List[str]
     Returns:
         Dictionary with count of categorized transactions
     """
-    supabase = get_supabase()
+    supabase = get_supabase_admin()
     
     # Get uncategorized transactions or specific ones
     if transaction_ids:

@@ -6,7 +6,7 @@ from typing import List, Dict, Optional
 from collections import defaultdict
 import numpy as np
 
-from src.database import get_supabase
+from src.database import get_supabase_admin
 
 
 async def get_spending_summary(
@@ -25,7 +25,7 @@ async def get_spending_summary(
     Returns:
         Dictionary with spending summary
     """
-    supabase = get_supabase()
+    supabase = get_supabase_admin()
     
     # Default to current month if no dates provided
     if not start_date:
@@ -88,7 +88,7 @@ async def detect_anomalies(user_id: str) -> List[Dict]:
     Returns:
         List of anomalous transactions
     """
-    supabase = get_supabase()
+    supabase = get_supabase_admin()
     
     # Get last 90 days of transactions
     start_date = (datetime.now() - timedelta(days=90)).date()
@@ -148,7 +148,7 @@ async def compare_monthly_trends(user_id: str, months: int = 3) -> Dict:
     Returns:
         Dictionary with monthly comparison data
     """
-    supabase = get_supabase()
+    supabase = get_supabase_admin()
     
     monthly_data = []
     

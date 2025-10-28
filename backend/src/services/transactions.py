@@ -3,7 +3,7 @@ Transaction service for managing financial transactions.
 """
 from typing import List, Optional, Dict
 
-from src.database import get_supabase
+from src.database import get_supabase_admin, get_supabase
 from src.utils.schema import TransactionCreate, Transaction, TransactionFilter
 
 
@@ -18,7 +18,7 @@ async def create_transaction(user_id: str, transaction: TransactionCreate) -> Di
     Returns:
         The created transaction
     """
-    supabase = get_supabase()
+    supabase = get_supabase_admin()
     
     transaction_data = {
         "user_id": user_id,
@@ -48,7 +48,7 @@ async def get_transactions(
     Returns:
         List of transactions
     """
-    supabase = get_supabase()
+    supabase = get_supabase_admin()
     
     query = supabase.table("transactions").select("*").eq("user_id", user_id)
     
@@ -72,7 +72,7 @@ async def get_transactions(
 
 async def get_transaction_by_id(user_id: str, transaction_id: str) -> Optional[Dict]:
     """Get a specific transaction by ID."""
-    supabase = get_supabase()
+    supabase = get_supabase_admin()
     
     result = supabase.table("transactions").select("*").eq("id", transaction_id).eq("user_id", user_id).execute()
     
@@ -81,7 +81,7 @@ async def get_transaction_by_id(user_id: str, transaction_id: str) -> Optional[D
 
 async def update_transaction(user_id: str, transaction_id: str, updates: Dict) -> Optional[Dict]:
     """Update a transaction."""
-    supabase = get_supabase()
+    supabase = get_supabase_admin()
     
     result = supabase.table("transactions").update(updates).eq("id", transaction_id).eq("user_id", user_id).execute()
     
@@ -90,7 +90,7 @@ async def update_transaction(user_id: str, transaction_id: str, updates: Dict) -
 
 async def delete_transaction(user_id: str, transaction_id: str) -> bool:
     """Delete a transaction."""
-    supabase = get_supabase()
+    supabase = get_supabase_admin()
     
     result = supabase.table("transactions").delete().eq("id", transaction_id).eq("user_id", user_id).execute()
     
@@ -99,7 +99,7 @@ async def delete_transaction(user_id: str, transaction_id: str) -> bool:
 
 async def get_uncategorized_transactions(user_id: str) -> List[Dict]:
     """Get all uncategorized transactions for a user."""
-    supabase = get_supabase()
+    supabase = get_supabase_admin()
     
     result = supabase.table("transactions").select("*").eq("user_id", user_id).eq("category", "Uncategorized").execute()
     
