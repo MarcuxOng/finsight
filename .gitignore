@@ -1,0 +1,39 @@
+markdown/
+
+.venv/
+venv/
+
+__pycache__/
+
+# Environment variables - NEVER commit these!
+.env
+.env.local
+.env*.local
+backend/.env
+frontend/.env.local
+
+# Node modules
+node_modules/
+
+# Next.js build output
+.next/
+out/
+
+# Python
+*.pyc
+*.pyo
+*.pyd
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
