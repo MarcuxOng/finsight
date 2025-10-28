@@ -59,7 +59,7 @@ class Insight(BaseModel):
 
 
 class InsightGenerate(BaseModel):
-    period: Literal["week", "month", "quarter", "year"] = "month"
+    period: Literal["week", "month", "quarter", "year", "total"] = "month"
     focus: Optional[str] = None  # e.g., "savings", "spending", "subscriptions"
 
 

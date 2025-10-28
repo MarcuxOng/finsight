@@ -4,13 +4,13 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { api } from '@/lib/api';
-import type { SpendingSummary, Insight } from '@/types';
+import type { SpendingSummary } from '@/types';
 
 export default function DashboardPage() {
   const router = useRouter();
   const { user, loading: authLoading, logout } = useAuth();
   const [summary, setSummary] = useState<SpendingSummary | null>(null);
-  const [insights, setInsights] = useState<Insight[]>([]);
+  const [insightGroups, setInsightGroups] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -30,10 +30,14 @@ export default function DashboardPage() {
       setLoading(true);
       const [summaryData, insightsData] = await Promise.all([
         api.getSummary(),
-        api.getInsights(5)
+        api.getInsights(2) // Get 2 most recent insight groups
       ]);
       setSummary(summaryData as SpendingSummary);
-      setInsights(insightsData as Insight[]);
+      
+      // Store grouped insights for dashboard display
+      if (Array.isArray(insightsData)) {
+        setInsightGroups((insightsData as any[]).slice(0, 2)); // Show 2 most recent groups
+      }
     } catch (error) {
       console.error('Failed to load dashboard data:', error);
     } finally {
@@ -142,30 +146,6 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* Recent Insights */}
-        {insights.length > 0 && (
-          <div className="bg-white rounded-lg shadow">
-            <div className="p-6 border-b">
-              <h3 className="text-lg font-semibold text-gray-900">Recent Insights</h3>
-            </div>
-            <div className="p-6">
-              <div className="space-y-4">
-                {insights.map((insight) => (
-                  <div key={insight.id} className="border-l-4 border-[#93BFC7] pl-4 py-2">
-                    <span className="inline-block px-2 py-1 text-xs font-medium bg-[#CBF3BB] text-gray-800 rounded mb-2">
-                      {insight.type}
-                    </span>
-                    <p className="text-gray-700">{insight.content}</p>
-                    <p className="text-xs text-gray-500 mt-2">
-                      {new Date(insight.generated_at).toLocaleDateString()}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* Quick Actions */}
         <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
           <button
@@ -190,6 +170,101 @@ export default function DashboardPage() {
             <p className="text-sm text-gray-600">Get AI-powered financial advice</p>
           </button>
         </div>
+
+        <br />
+
+        {/* Recent Insights */}
+        {insightGroups.length > 0 && (
+          <div className="bg-white rounded-lg shadow">
+            <div className="p-6 border-b flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-gray-900">Recent Insights</h3>
+              <button
+                onClick={() => router.push('/insights')}
+                className="text-sm text-[#93BFC7] hover:text-[#7da8b0] font-medium"
+              >
+                View All →
+              </button>
+            </div>
+            <div className="p-6">
+              <div className="space-y-6">
+                {insightGroups.map((group, groupIndex) => (
+                  <div key={groupIndex} className="border-l-4 border-[#93BFC7] pl-4">
+                    <div className="text-xs text-gray-500 mb-3">
+                      {new Date(group.timestamp).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric',
+                      })}
+                    </div>
+                    
+                    {/* Summary */}
+                    {group.summary && (
+                      <div className="mb-3">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-lg">📊</span>
+                          <span className="text-xs font-medium text-gray-600">Summary</span>
+                        </div>
+                        <p className="text-sm text-gray-700 leading-relaxed ml-6 line-clamp-2">
+                          {group.summary.content}
+                        </p>
+                      </div>
+                    )}
+                    
+                    {/* Trends - Show first 2 */}
+                    {group.trends && group.trends.length > 0 && (
+                      <div className="mb-3">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-lg">📈</span>
+                          <span className="text-xs font-medium text-gray-600">
+                            Key Insights ({group.trends.length})
+                          </span>
+                        </div>
+                        <ul className="ml-6 space-y-1">
+                          {group.trends.slice(0, 2).map((trend: any, idx: number) => (
+                            <li key={idx} className="text-sm text-gray-700 leading-relaxed flex gap-2">
+                              <span className="text-[#ABE7B2]">•</span>
+                              <span className="line-clamp-2">{trend.content}</span>
+                            </li>
+                          ))}
+                          {group.trends.length > 2 && (
+                            <li className="text-xs text-gray-500 ml-3">
+                              +{group.trends.length - 2} more
+                            </li>
+                          )}
+                        </ul>
+                      </div>
+                    )}
+                    
+                    {/* Advice - Show first 2 */}
+                    {group.advice && group.advice.length > 0 && (
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-lg">💡</span>
+                          <span className="text-xs font-medium text-gray-600">
+                            Recommendations ({group.advice.length})
+                          </span>
+                        </div>
+                        <ul className="ml-6 space-y-1">
+                          {group.advice.slice(0, 2).map((advice: any, idx: number) => (
+                            <li key={idx} className="text-sm text-gray-700 leading-relaxed flex gap-2">
+                              <span className="text-[#CBF3BB]">•</span>
+                              <span className="line-clamp-2">{advice.content}</span>
+                            </li>
+                          ))}
+                          {group.advice.length > 2 && (
+                            <li className="text-xs text-gray-500 ml-3">
+                              +{group.advice.length - 2} more
+                            </li>
+                          )}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );

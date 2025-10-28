@@ -59,6 +59,21 @@ export class ApiClient {
 
       if (!response.ok) {
         const error = await response.json();
+        console.error('API Error:', {
+          url,
+          status: response.status,
+          error,
+          hasToken: !!this.token
+        });
+        
+        // If 401 Unauthorized, clear token and redirect to login
+        if (response.status === 401) {
+          this.setToken(null);
+          if (typeof window !== 'undefined' && !window.location.pathname.includes('/auth')) {
+            window.location.href = '/auth/login';
+          }
+        }
+        
         throw new Error(error.detail || 'An error occurred');
       }
 

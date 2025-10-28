@@ -4,8 +4,9 @@ AI-powered insights generation service.
 import google.generativeai as genai
 from datetime import datetime
 from typing import Dict, List
+
 from src.config import settings
-from src.database import get_supabase
+from src.database import get_supabase_admin
 from src.services.analytics import get_spending_summary, detect_anomalies, compare_monthly_trends
 
 # Configure Gemini
@@ -47,7 +48,7 @@ async def generate_insights(user_id: str, period: str = "month") -> Dict:
 
     # Generate insights using Gemini
     try:
-        model = genai.GenerativeModel('gemini-pro')
+        model = genai.GenerativeModel(settings.gemini_model)
         
         prompt = f"""
             You are a financial advisor analyzing a user's spending patterns. Based on the following data, provide:
@@ -73,12 +74,12 @@ async def generate_insights(user_id: str, period: str = "month") -> Dict:
         # Parse the response
         import json
         insights_data = json.loads(response.text.strip().replace("```json", "").replace("```", ""))
-        
+                
         # Save insights to database
-        supabase = get_supabase()
+        supabase = get_supabase_admin()
         
         # Save summary
-        supabase.table("insights").insert({
+        result_summary = supabase.table("insights").insert({
             "user_id": user_id,
             "content": insights_data["summary"],
             "type": "summary",
@@ -86,8 +87,8 @@ async def generate_insights(user_id: str, period: str = "month") -> Dict:
         }).execute()
         
         # Save individual insights
-        for insight in insights_data["insights"]:
-            supabase.table("insights").insert({
+        for i, insight in enumerate(insights_data["insights"]):
+            result_insight = supabase.table("insights").insert({
                 "user_id": user_id,
                 "content": insight,
                 "type": "trend",
@@ -95,8 +96,8 @@ async def generate_insights(user_id: str, period: str = "month") -> Dict:
             }).execute()
         
         # Save recommendations
-        for recommendation in insights_data["recommendations"]:
-            supabase.table("insights").insert({
+        for i, recommendation in enumerate(insights_data["recommendations"]):
+            result_rec = supabase.table("insights").insert({
                 "user_id": user_id,
                 "content": recommendation,
                 "type": "advice",
@@ -113,7 +114,10 @@ async def generate_insights(user_id: str, period: str = "month") -> Dict:
         }
         
     except Exception as e:
-        print(f"Error generating insights: {e}")
+        print(f"[ERROR] Error generating insights: {e}")
+        print(f"[ERROR] Error type: {type(e)}")
+        import traceback
+        traceback.print_exc()
         # Return fallback insights
         return {
             "summary": f"You spent ${summary['total_expense']} this period with a net of ${summary['net']}.",
@@ -134,17 +138,51 @@ async def generate_insights(user_id: str, period: str = "month") -> Dict:
 
 async def get_user_insights(user_id: str, limit: int = 10) -> List[Dict]:
     """
-    Retrieve recent insights for a user.
+    Retrieve recent insights for a user, grouped by generation.
     
     Args:
         user_id: User ID
-        limit: Maximum number of insights to return
+        limit: Maximum number of insight groups to return
         
     Returns:
-        List of insights
+        List of insight groups
     """
-    supabase = get_supabase()
+    supabase = get_supabase_admin()
     
-    result = supabase.table("insights").select("*").eq("user_id", user_id).order("generated_at", desc=True).limit(limit).execute()
+    # Get all insights ordered by generated_at
+    result = supabase.table("insights").select("*").eq("user_id", user_id).order("generated_at", desc=True).limit(limit * 7).execute()
     
-    return result.data
+    # Group insights by timestamp (within 1 minute = same generation)
+    from collections import defaultdict
+    from datetime import datetime
+    
+    grouped = defaultdict(lambda: {"summary": None, "trends": [], "advice": [], "timestamp": None})
+    
+    for insight in result.data:
+        timestamp = insight["generated_at"]
+        # Use timestamp as key (rounded to minute for grouping)
+        dt = datetime.fromisoformat(timestamp.replace('Z', '+00:00'))
+        key = dt.strftime("%Y-%m-%d %H:%M")
+        
+        if insight["type"] == "summary":
+            grouped[key]["summary"] = insight
+            grouped[key]["timestamp"] = timestamp
+        elif insight["type"] == "trend":
+            grouped[key]["trends"].append(insight)
+        elif insight["type"] == "advice":
+            grouped[key]["advice"].append(insight)
+    
+    # Convert to list and sort by timestamp
+    insight_groups = []
+    for key, group in grouped.items():
+        if group["summary"] or group["trends"] or group["advice"]:
+            insight_groups.append({
+                "timestamp": group["timestamp"] or group.get("trends", [{}])[0].get("generated_at") or group.get("advice", [{}])[0].get("generated_at"),
+                "summary": group["summary"],
+                "trends": group["trends"],
+                "advice": group["advice"]
+            })
+    
+    # Sort by timestamp descending and limit
+    insight_groups.sort(key=lambda x: x["timestamp"], reverse=True)
+    return insight_groups[:limit]
