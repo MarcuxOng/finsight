@@ -53,7 +53,7 @@ export default function HomePage() {
 
     return (
         <AppLayout
-            title={`Hello ${user?.name}`}
+            title={`Hello ${user?.username}`}
             description=""
             actions={
               <>
