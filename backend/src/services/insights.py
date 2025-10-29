@@ -8,6 +8,7 @@ from typing import Dict, List
 from src.config import settings
 from src.database import get_supabase_admin
 from src.services.analytics import get_spending_summary, detect_anomalies, compare_monthly_trends
+from src.utils.llm_prompt import build_financial_insights_prompt, format_financial_data_context
 
 # Configure Gemini
 genai.configure(api_key=settings.gemini_api_key)
@@ -30,45 +31,12 @@ async def generate_insights(user_id: str, period: str = "month") -> Dict:
     trends = await compare_monthly_trends(user_id, months=3)
     
     # Prepare data for AI analysis
-    data_context = f"""
-        Financial Summary:
-        - Total Income: ${summary['total_income']}
-        - Total Expenses: ${summary['total_expense']}
-        - Net: ${summary['net']}
-
-        Top Spending Categories:
-        {chr(10).join([f"- {cat['category']}: ${cat['total']} ({cat['percentage']}%)" for cat in summary['categories'][:5]])}
-
-        Recent Trends:
-        - Expense Change: {trends['trends'].get('expense_change_percent', 0)}% ({trends['trends'].get('expense_direction', 'stable')})
-        - Income Change: {trends['trends'].get('income_change_percent', 0)}% ({trends['trends'].get('income_direction', 'stable')})
-
-        Anomalies Detected: {len(anomalies)}
-    """
+    data_context = format_financial_data_context(summary, trends, anomalies)
 
     # Generate insights using Gemini
     try:
         model = genai.GenerativeModel(settings.gemini_model)
-        
-        prompt = f"""
-            You are a financial advisor analyzing a user's spending patterns. Based on the following data, provide:
-
-            1. A brief summary of their financial situation (2-3 sentences)
-            2. Three key insights about their spending habits
-            3. Three actionable recommendations for improving their finances
-
-            {data_context}
-
-            Format your response as JSON with this structure:
-            {{
-            "summary": "...",
-            "insights": ["...", "...", "..."],
-            "recommendations": ["...", "...", "..."]
-            }}
-
-            Be specific, conversational, and encouraging. Use actual numbers from the data.
-        """
-
+        prompt = build_financial_insights_prompt(data_context)
         response = model.generate_content(prompt)
         
         # Parse the response

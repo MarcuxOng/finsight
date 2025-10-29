@@ -6,29 +6,10 @@ from typing import List, Dict
 
 from src.config import settings
 from src.database import get_supabase_admin
+from src.utils.llm_prompt import build_transaction_categorization_prompt, TRANSACTION_CATEGORIES
 
 # Configure Gemini
 genai.configure(api_key=settings.gemini_api_key)
-
-# Categories for classification
-CATEGORIES = [
-    "Food & Dining",
-    "Transport",
-    "Entertainment",
-    "Shopping",
-    "Bills & Utilities",
-    "Healthcare",
-    "Education",
-    "Subscriptions",
-    "Groceries",
-    "Travel",
-    "Personal Care",
-    "Home & Garden",
-    "Insurance",
-    "Investments",
-    "Income",
-    "Other"
-]
 
 
 async def categorize_transaction(description: str, amount: float) -> str:
@@ -44,20 +25,12 @@ async def categorize_transaction(description: str, amount: float) -> str:
     """
     try:
         model = genai.GenerativeModel(settings.gemini_model)
-        
-        prompt = f"""Categorize the following transaction into ONE of these categories:
-{', '.join(CATEGORIES)}
-
-Transaction: {description}
-Amount: ${amount}
-
-Respond with ONLY the category name, nothing else."""
-
+        prompt = build_transaction_categorization_prompt(description, amount)
         response = model.generate_content(prompt)
         category = response.text.strip()
         
         # Validate category
-        if category in CATEGORIES:
+        if category in TRANSACTION_CATEGORIES:
             return category
         else:
             return "Other"
