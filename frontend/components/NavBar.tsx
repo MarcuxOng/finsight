@@ -18,7 +18,7 @@ export default function NavBar() {
         <div className="flex justify-between h-16 items-center">
           <div 
             className="flex items-center gap-2 cursor-pointer"
-            onClick={() => router.push('/dashboard')}
+            onClick={() => router.push('/home')}
           >
             <div className="bg-gradient-to-br from-[#93BFC7] to-[#ABE7B2] p-2 rounded-lg">
               <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -32,6 +32,12 @@ export default function NavBar() {
 
           {/* Navigation Links */}
           <div className="hidden md:flex items-center gap-1">
+            <button
+              onClick={() => router.push('/dashboard')}
+              className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-[#93BFC7] hover:bg-gray-50 rounded-lg transition-colors"
+            >
+              Dashboard
+            </button>
             <button
               onClick={() => router.push('/transactions')}
               className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-[#93BFC7] hover:bg-gray-50 rounded-lg transition-colors"
