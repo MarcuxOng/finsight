@@ -48,7 +48,7 @@ export default function HomePage() {
     };
 
     if (authLoading || loading) {
-        return <Loading message="Loading dashboard..." />;
+        return <Loading message="Loading home..." />;
     }
 
     return (
