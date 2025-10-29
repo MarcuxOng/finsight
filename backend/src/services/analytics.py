@@ -27,15 +27,14 @@ async def get_spending_summary(
     """
     supabase = get_supabase_admin()
     
-    # Default to current month if no dates provided
-    if not start_date:
-        start_date = datetime.now().replace(day=1).date()
-    if not end_date:
-        end_date = datetime.now().date()
-    
-    # Get transactions
+    # If no dates provided, get all transactions
+    # Otherwise use the specified date range
     query = supabase.table("transactions").select("*").eq("user_id", user_id)
-    query = query.gte("date", start_date.isoformat()).lte("date", end_date.isoformat())
+    
+    if start_date:
+        query = query.gte("date", start_date.isoformat())
+    if end_date:
+        query = query.lte("date", end_date.isoformat())
     
     result = query.execute()
     transactions = result.data
@@ -66,14 +65,27 @@ async def get_spending_summary(
     # Sort by total
     categories.sort(key=lambda x: x["total"], reverse=True)
     
+    # Determine period for response
+    if transactions:
+        # Get actual date range from transactions
+        dates = [datetime.fromisoformat(t["date"].replace('Z', '+00:00')).date() if isinstance(t["date"], str) else t["date"] for t in transactions]
+        actual_start = min(dates)
+        actual_end = max(dates)
+        period_start = start_date.isoformat() if start_date else actual_start.isoformat()
+        period_end = end_date.isoformat() if end_date else actual_end.isoformat()
+    else:
+        # No transactions, use provided dates or current date
+        period_start = start_date.isoformat() if start_date else datetime.now().date().isoformat()
+        period_end = end_date.isoformat() if end_date else datetime.now().date().isoformat()
+    
     return {
         "total_income": round(total_income, 2),
         "total_expense": round(total_expense, 2),
         "net": round(total_income - total_expense, 2),
         "categories": categories,
         "period": {
-            "start": start_date.isoformat(),
-            "end": end_date.isoformat()
+            "start": period_start,
+            "end": period_end
         }
     }
 
