@@ -90,10 +90,10 @@ export class ApiClient {
   }
 
   // Auth endpoints
-  async register(email: string, password: string, name: string) {
+  async register(email: string, password: string, username: string) {
     return this.request('/auth/register', {
       method: 'POST',
-      body: JSON.stringify({ email, password, name }),
+      body: JSON.stringify({ email, password, username }),
     });
   }
 
@@ -109,6 +109,24 @@ export class ApiClient {
 
   logout() {
     this.setToken(null);
+  }
+
+  // Profile endpoints
+  async updateProfile(data: { username: string; email: string }) {
+    return this.request('/auth/profile', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async changePassword(currentPassword: string, newPassword: string) {
+    return this.request('/auth/change-password', {
+      method: 'POST',
+      body: JSON.stringify({
+        current_password: currentPassword,
+        new_password: newPassword,
+      }),
+    });
   }
 
   // Transaction endpoints

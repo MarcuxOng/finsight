@@ -8,7 +8,7 @@ import Link from 'next/link';
 export default function RegisterPage() {
   const router = useRouter();
   const { register } = useAuth();
-  const [name, setName] = useState('');
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -32,8 +32,8 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      await register(email, password, name);
-      router.push('/dashboard');
+      await register(email, password, username);
+      router.push('/auth/login');
     } catch (err: any) {
       setError(err.message || 'Failed to create account');
     } finally {
@@ -61,17 +61,17 @@ export default function RegisterPage() {
           )}
 
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-              Full Name
+            <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
+              Username
             </label>
             <input
-              id="name"
+              id="username"
               type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               required
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#93BFC7] focus:border-transparent text-gray-900 placeholder:text-gray-400"
-              placeholder="John Doe"
+              placeholder="johndoe"
             />
           </div>
 

@@ -10,7 +10,7 @@ from datetime import datetime, date
 class UserRegister(BaseModel):
     email: EmailStr
     password: str = Field(..., min_length=6)
-    name: str
+    username: str
 
 
 class UserLogin(BaseModel):
