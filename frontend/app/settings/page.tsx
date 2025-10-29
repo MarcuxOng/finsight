@@ -259,7 +259,7 @@ export default function SettingsPage() {
                     id="currentPassword"
                     value={passwordForm.currentPassword}
                     onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#93BFC7] focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#93BFC7] focus:border-transparent text-gray-900 placeholder:text-gray-400"
                     required
                   />
                 </div>
@@ -273,7 +273,7 @@ export default function SettingsPage() {
                     id="newPassword"
                     value={passwordForm.newPassword}
                     onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#93BFC7] focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#93BFC7] focus:border-transparent text-gray-900 placeholder:text-gray-400"
                     required
                     minLength={6}
                   />
@@ -289,7 +289,7 @@ export default function SettingsPage() {
                     id="confirmPassword"
                     value={passwordForm.confirmPassword}
                     onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#93BFC7] focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#93BFC7] focus:border-transparent text-gray-900 placeholder:text-gray-400"
                     required
                   />
                 </div>
@@ -322,7 +322,7 @@ export default function SettingsPage() {
                       onChange={(e) => setNewCategory(e.target.value)}
                       onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddCategory())}
                       placeholder="Enter category name"
-                      className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#93BFC7] focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#93BFC7] focus:border-transparent text-gray-900 placeholder:text-gray-400"
                     />
                     <button
                       type="button"
