@@ -7,6 +7,7 @@ from typing import List, Dict
 from src.config import settings
 from src.database import get_supabase_admin
 from src.utils.llm_prompt import build_transaction_categorization_prompt, TRANSACTION_CATEGORIES
+from src.utils.logging import *
 
 # Configure Gemini
 genai.configure(api_key=settings.gemini_api_key)
@@ -24,6 +25,8 @@ async def categorize_transaction(description: str, amount: float) -> str:
         Category name
     """
     try:
+        log_debug("Categorizing transaction", {"description": description[:50], "amount": amount})
+        
         model = genai.GenerativeModel(settings.gemini_model)
         prompt = build_transaction_categorization_prompt(description, amount)
         response = model.generate_content(prompt)
@@ -31,12 +34,14 @@ async def categorize_transaction(description: str, amount: float) -> str:
         
         # Validate category
         if category in TRANSACTION_CATEGORIES:
+            log_debug("Transaction categorized successfully", {"category": category})
             return category
         else:
+            log_warning("AI returned invalid category, defaulting to 'Other'", {"returned_category": category, "description": description[:50]})
             return "Other"
             
     except Exception as e:
-        print(f"Error categorizing transaction: {e}")
+        log_error("Error categorizing transaction", error=e, context={"description": description[:50], "amount": amount})
         return "Other"
 
 
@@ -51,6 +56,8 @@ async def categorize_transactions_batch(user_id: str, transaction_ids: List[str]
     Returns:
         Dictionary with count of categorized transactions
     """
+    log_info("Starting batch categorization", {"user_id": user_id, "specific_ids": bool(transaction_ids)})
+    
     supabase = get_supabase_admin()
     
     # Get uncategorized transactions or specific ones
@@ -61,6 +68,8 @@ async def categorize_transactions_batch(user_id: str, transaction_ids: List[str]
     
     result = query.execute()
     transactions = result.data
+    
+    log_info(f"Found transactions to categorize", {"user_id": user_id, "count": len(transactions)})
     
     categorized_count = 0
     
@@ -73,6 +82,8 @@ async def categorize_transactions_batch(user_id: str, transaction_ids: List[str]
         # Update the transaction
         supabase.table("transactions").update({"category": category}).eq("id", transaction["id"]).execute()
         categorized_count += 1
+    
+    log_info("Batch categorization completed", {"user_id": user_id, "total": len(transactions), "categorized": categorized_count})
     
     return {
         "total": len(transactions),
@@ -91,6 +102,8 @@ async def suggest_category(description: str, amount: float) -> Dict[str, any]:
     Returns:
         Dictionary with category and confidence
     """
+    log_debug("Suggesting category for transaction", {"description": description[:50], "amount": amount})
+    
     category = await categorize_transaction(description, amount)
     
     return {
