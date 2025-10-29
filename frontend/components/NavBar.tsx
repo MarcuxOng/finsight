@@ -39,16 +39,16 @@ export default function NavBar() {
               Transactions
             </button>
             <button
-              onClick={() => router.push('/insights')}
-              className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-[#93BFC7] hover:bg-gray-50 rounded-lg transition-colors"
-            >
-              Insights
-            </button>
-            <button
               onClick={() => router.push('/upload')}
               className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-[#93BFC7] hover:bg-gray-50 rounded-lg transition-colors"
             >
               Upload
+            </button>
+            <button
+              onClick={() => router.push('/insights')}
+              className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-[#93BFC7] hover:bg-gray-50 rounded-lg transition-colors"
+            >
+              Insights
             </button>
           </div>
 
