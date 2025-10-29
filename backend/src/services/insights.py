@@ -75,34 +75,17 @@ async def generate_insights(user_id: str, period: str = "month") -> Dict:
         import json
         insights_data = json.loads(response.text.strip().replace("```json", "").replace("```", ""))
                 
-        # Save insights to database
+        # Save insights to database with new schema
         supabase = get_supabase_admin()
         
-        # Save summary
-        result_summary = supabase.table("insights").insert({
+        # Save as a single row with all data
+        result = supabase.table("insights").insert({
             "user_id": user_id,
-            "content": insights_data["summary"],
-            "type": "summary",
+            "summary": insights_data["summary"],
+            "trend": insights_data["insights"],  # Array of trends
+            "advice": insights_data["recommendations"],  # Array of advice
             "generated_at": datetime.now().isoformat()
         }).execute()
-        
-        # Save individual insights
-        for i, insight in enumerate(insights_data["insights"]):
-            result_insight = supabase.table("insights").insert({
-                "user_id": user_id,
-                "content": insight,
-                "type": "trend",
-                "generated_at": datetime.now().isoformat()
-            }).execute()
-        
-        # Save recommendations
-        for i, recommendation in enumerate(insights_data["recommendations"]):
-            result_rec = supabase.table("insights").insert({
-                "user_id": user_id,
-                "content": recommendation,
-                "type": "advice",
-                "generated_at": datetime.now().isoformat()
-            }).execute()
         
         return {
             "summary": insights_data["summary"],
@@ -138,51 +121,32 @@ async def generate_insights(user_id: str, period: str = "month") -> Dict:
 
 async def get_user_insights(user_id: str, limit: int = 10) -> List[Dict]:
     """
-    Retrieve recent insights for a user, grouped by generation.
+    Retrieve recent insights for a user.
     
     Args:
         user_id: User ID
-        limit: Maximum number of insight groups to return
+        limit: Maximum number of insights to return
         
     Returns:
-        List of insight groups
+        List of insights with summary, trends, and advice
     """
     supabase = get_supabase_admin()
     
-    # Get all insights ordered by generated_at
-    result = supabase.table("insights").select("*").eq("user_id", user_id).order("generated_at", desc=True).limit(limit * 7).execute()
+    # Get insights ordered by generated_at
+    result = supabase.table("insights").select("*").eq("user_id", user_id).order("generated_at", desc=True).limit(limit).execute()
     
-    # Group insights by timestamp (within 1 minute = same generation)
-    from collections import defaultdict
-    from datetime import datetime
-    
-    grouped = defaultdict(lambda: {"summary": None, "trends": [], "advice": [], "timestamp": None})
-    
+    # Format the response to match frontend expectations
+    insights = []
     for insight in result.data:
-        timestamp = insight["generated_at"]
-        # Use timestamp as key (rounded to minute for grouping)
-        dt = datetime.fromisoformat(timestamp.replace('Z', '+00:00'))
-        key = dt.strftime("%Y-%m-%d %H:%M")
-        
-        if insight["type"] == "summary":
-            grouped[key]["summary"] = insight
-            grouped[key]["timestamp"] = timestamp
-        elif insight["type"] == "trend":
-            grouped[key]["trends"].append(insight)
-        elif insight["type"] == "advice":
-            grouped[key]["advice"].append(insight)
+        insights.append({
+            "id": insight["id"],
+            "timestamp": insight["generated_at"],
+            "summary": {
+                "content": insight["summary"],
+                "generated_at": insight["generated_at"]
+            },
+            "trends": [{"content": trend, "generated_at": insight["generated_at"]} for trend in insight["trend"]],
+            "advice": [{"content": advice, "generated_at": insight["generated_at"]} for advice in insight["advice"]]
+        })
     
-    # Convert to list and sort by timestamp
-    insight_groups = []
-    for key, group in grouped.items():
-        if group["summary"] or group["trends"] or group["advice"]:
-            insight_groups.append({
-                "timestamp": group["timestamp"] or group.get("trends", [{}])[0].get("generated_at") or group.get("advice", [{}])[0].get("generated_at"),
-                "summary": group["summary"],
-                "trends": group["trends"],
-                "advice": group["advice"]
-            })
-    
-    # Sort by timestamp descending and limit
-    insight_groups.sort(key=lambda x: x["timestamp"], reverse=True)
-    return insight_groups[:limit]
+    return insights
