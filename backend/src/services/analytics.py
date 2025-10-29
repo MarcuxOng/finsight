@@ -153,18 +153,34 @@ async def compare_monthly_trends(user_id: str, months: int = 3) -> Dict:
     monthly_data = []
     
     for i in range(months):
-        # Calculate month boundaries
-        end_date = datetime.now().replace(day=1) - timedelta(days=i * 30)
-        start_date = end_date.replace(day=1)
+        # Calculate month boundaries - go back i months from current month
+        current_date = datetime.now()
+        # Calculate target month
+        target_month = current_date.month - i
+        target_year = current_date.year
+        
+        # Handle year rollover
+        while target_month <= 0:
+            target_month += 12
+            target_year -= 1
+        
+        # Get first day of target month
+        start_date = datetime(target_year, target_month, 1).date()
+        
+        # Get last day of target month
+        if target_month == 12:
+            end_date = datetime(target_year + 1, 1, 1).date() - timedelta(days=1)
+        else:
+            end_date = datetime(target_year, target_month + 1, 1).date() - timedelta(days=1)
         
         # Get month name
-        month_name = end_date.strftime("%B %Y")
+        month_name = start_date.strftime("%B %Y")
         
         # Get spending summary for this month
         summary = await get_spending_summary(
             user_id,
-            start_date.date(),
-            end_date.date()
+            start_date,
+            end_date
         )
         
         monthly_data.append({

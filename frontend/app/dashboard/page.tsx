@@ -4,15 +4,19 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { api } from '@/lib/api';
-import type { SpendingSummary } from '@/types';
+import type { SpendingSummary, MonthlyData, TrendData } from '@/types';
 import AppLayout from '@/components/AppLayout';
 import Loading from '@/components/Loading';
+import CategoryPieChart from '@/components/charts/CategoryPieChart';
+import SpendingTrendsChart from '@/components/charts/SpendingTrendsChart';
+import IncomeExpenseChart from '@/components/charts/IncomeExpenseChart';
 
 export default function DashboardPage() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
   const [summary, setSummary] = useState<SpendingSummary | null>(null);
   const [insightGroups, setInsightGroups] = useState<any[]>([]);
+  const [trendsData, setTrendsData] = useState<{ monthly_data: MonthlyData[]; trends: TrendData } | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -30,11 +34,13 @@ export default function DashboardPage() {
   const loadDashboardData = async () => {
     try {
       setLoading(true);
-      const [summaryData, insightsData] = await Promise.all([
+      const [summaryData, insightsData, trendsResponse] = await Promise.all([
         api.getSummary(),
-        api.getInsights(2) // Get 2 most recent insight groups
+        api.getInsights(2), // Get 2 most recent insight groups
+        api.getTrends(6) // Get 6 months of trend data
       ]);
       setSummary(summaryData as SpendingSummary);
+      setTrendsData(trendsResponse as { monthly_data: MonthlyData[]; trends: TrendData });
       
       // Store grouped insights for dashboard display
       if (Array.isArray(insightsData)) {
@@ -95,6 +101,46 @@ export default function DashboardPage() {
             <p className={`text-3xl font-bold ${summary.net >= 0 ? 'text-green-600' : 'text-red-600'}`}>
               ${summary.net.toFixed(2)}
             </p>
+          </div>
+        </div>
+      )}
+
+      {/* Charts Section */}
+      {summary && trendsData && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          {/* Category Pie Chart */}
+          <div className="bg-white rounded-lg shadow">
+            <div className="p-6 border-b">
+              <h3 className="text-lg font-semibold text-gray-900">Spending by Category</h3>
+              <p className="text-sm text-gray-600 mt-1">Distribution of your expenses</p>
+            </div>
+            <div className="p-6">
+              <CategoryPieChart data={summary.categories} />
+            </div>
+          </div>
+
+          {/* Income vs Expense Bar Chart */}
+          <div className="bg-white rounded-lg shadow">
+            <div className="p-6 border-b">
+              <h3 className="text-lg font-semibold text-gray-900">Income vs Expenses</h3>
+              <p className="text-sm text-gray-600 mt-1">Monthly comparison over time</p>
+            </div>
+            <div className="p-6">
+              <IncomeExpenseChart data={trendsData.monthly_data} />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Spending Trends Line Chart - Full Width */}
+      {trendsData && (
+        <div className="bg-white rounded-lg shadow mb-8">
+          <div className="p-6 border-b">
+            <h3 className="text-lg font-semibold text-gray-900">Spending Trends</h3>
+            <p className="text-sm text-gray-600 mt-1">Track your income, expenses, and net balance over time</p>
+          </div>
+          <div className="p-6">
+            <SpendingTrendsChart data={trendsData.monthly_data} />
           </div>
         </div>
       )}
