@@ -571,7 +571,7 @@ date,description,amount,type
 ### `transactions` Table
 Stores all financial transactions for users.
 
-```sql
+<!-- ```sql
 CREATE TABLE transactions (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID REFERENCES auth.users NOT NULL,
@@ -603,7 +603,7 @@ CREATE POLICY "Users can update own transactions"
 CREATE POLICY "Users can delete own transactions" 
     ON transactions FOR DELETE 
     USING (auth.uid() = user_id);
-```
+``` -->
 
 **Columns:**
 - `id` - Unique transaction identifier
@@ -621,7 +621,7 @@ CREATE POLICY "Users can delete own transactions"
 ### `insights` Table
 Stores AI-generated financial insights.
 
-```sql
+<!-- ```sql
 CREATE TABLE insights (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID REFERENCES auth.users NOT NULL,
@@ -650,7 +650,7 @@ CREATE POLICY "Users can insert own insights"
 CREATE POLICY "Users can delete own insights" 
     ON insights FOR DELETE 
     USING (auth.uid() = user_id);
-```
+``` -->
 
 **Columns:**
 - `id` - Unique insight identifier
