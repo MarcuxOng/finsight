@@ -260,8 +260,6 @@ export default function TransactionsPage() {
       }
     >
 
-      <br />
-
       {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           <div className="bg-white rounded-lg shadow p-4">

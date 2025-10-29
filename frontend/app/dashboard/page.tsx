@@ -59,8 +59,6 @@ export default function DashboardPage() {
       description="Your financial overview at a glance"
     >
 
-      <br />
-
       {/* Top Categories */}
       {summary && summary.categories.length > 0 && (
         <div className="bg-white rounded-lg shadow mb-8">

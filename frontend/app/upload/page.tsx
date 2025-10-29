@@ -136,8 +136,6 @@ export default function UploadPage() {
         </button>
       }
     >
-
-      <br />
       
       <div className="max-w-3xl mx-auto">
           {/* Instructions Card */}

@@ -129,8 +129,6 @@ export default function InsightsPage() {
       }
     >
 
-      <br />
-
       {/* Generate Insights Section */}
       <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
