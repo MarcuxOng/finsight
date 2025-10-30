@@ -1,8 +1,7 @@
-markdown/
-
 .venv/
 venv/
 misc/
+markdown/
 
 __pycache__/
 
