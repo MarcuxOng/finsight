@@ -243,19 +243,25 @@ FinSight Application
 
 ### Transactions
 Each transaction represents a single financial event:
-- **ID**: Unique identifier
-- **User ID**: Links transaction to user account
-- **Date**: When the transaction occurred
-- **Description**: What the transaction was for
-- **Amount**: Transaction value (positive for income, can be positive or negative)
-- **Category**: AI-generated or user-assigned category
-- **Type**: Income or expense
-- **Source**: Where the transaction came from (manual, CSV, etc.)
+ 
+ | Field | Description |
+ |---|---|
+ | ID | Unique identifier |
+ | User ID | Links transaction to user account |
+ | Date | When the transaction occurred |
+ | Description | What the transaction was for |
+ | Amount | Transaction value (positive for income, can be positive or negative) |
+ | Category | AI-generated or user-assigned category |
+ | Type | Income or expense |
+ | Source | Where the transaction came from (manual, CSV, etc.) |
 
 ### Insights
 AI-generated financial recommendations:
-- **ID**: Unique identifier
-- **User ID**: Links insight to user account
-- **Generated At**: When the insight was created
-- **Content**: The actual insight text
-- **Type**: Classification (trend, advice, alert, summary)
+ 
+ | Field | Description |
+ |---|---|
+ | ID | Unique identifier |
+ | User ID | Links insight to user account |
+ | Generated At | When the insight was created |
+ | Content | The actual insight text |
+ | Type | Classification (trend, advice, alert, summary) |
