@@ -32,10 +32,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (token && userData) {
         try {
           setUser(JSON.parse(userData));
+          // Ensure cookie is set for middleware
+          document.cookie = `auth_token=${token}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Strict`;
         } catch (error) {
           console.error('Failed to parse user data:', error);
           localStorage.removeItem('auth_token');
           localStorage.removeItem('user_data');
+          document.cookie = 'auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
         }
       }
       
