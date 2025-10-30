@@ -1,6 +1,3 @@
-"""
-Pydantic models for request/response validation.
-"""
 from pydantic import BaseModel, EmailStr, Field
 from typing import Optional, List, Literal
 from datetime import datetime, date
@@ -22,6 +19,15 @@ class Token(BaseModel):
     access_token: str
     token_type: str = "bearer"
     user: dict
+
+class ProfileUpdate(BaseModel):
+    username: str
+    email: str
+
+
+class PasswordChange(BaseModel):
+    current_password: str
+    new_password: str
 
 
 # ============= Transaction Models =============

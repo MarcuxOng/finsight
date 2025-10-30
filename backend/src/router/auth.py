@@ -2,23 +2,11 @@ from fastapi import APIRouter, HTTPException, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 from src.database import get_supabase, get_supabase_admin
-from src.utils.schema import Token, UserRegister, UserLogin
+from src.utils.schema import Token, UserRegister, UserLogin, ProfileUpdate, PasswordChange
 from src.utils.auth import get_current_user_id
-from pydantic import BaseModel
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 security = HTTPBearer()
-
-
-class ProfileUpdate(BaseModel):
-    username: str
-    email: str
-
-
-class PasswordChange(BaseModel):
-    current_password: str
-    new_password: str
-
 
 @router.post("/register", response_model=Token)
 async def register(user: UserRegister):
