@@ -1,10 +1,7 @@
-"""
-Transaction service for managing financial transactions.
-"""
 from typing import List, Optional, Dict
 
-from src.database import get_supabase_admin, get_supabase
-from src.utils.schema import TransactionCreate, Transaction, TransactionFilter
+from src.database import get_supabase_admin
+from src.utils.schema import TransactionCreate, TransactionFilter
 
 
 async def create_transaction(user_id: str, transaction: TransactionCreate) -> Dict:

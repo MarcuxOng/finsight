@@ -1,6 +1,3 @@
-from fastapi import APIRouter
-
-# Import all routers
 from src.router.auth import router as auth_router
 from src.router.transactions import router as transactions_router
 from src.router.analytics import router as analytics_router

@@ -1,6 +1,3 @@
-"""
-CSV upload and parsing service.
-"""
 import pandas as pd
 from io import StringIO
 from typing import Dict

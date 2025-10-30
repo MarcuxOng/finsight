@@ -1,6 +1,3 @@
-"""
-Database connection and utilities for Supabase.
-"""
 from supabase import create_client, Client
 from src.config import settings
 

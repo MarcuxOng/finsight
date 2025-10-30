@@ -1,6 +1,3 @@
-"""
-Analytics service for financial data analysis.
-"""
 from datetime import datetime, timedelta, date
 from typing import List, Dict, Optional
 from collections import defaultdict

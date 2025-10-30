@@ -1,14 +1,10 @@
-"""
-Logging utilities for the application.
-"""
 import logging
 import sys
-from datetime import datetime
 from typing import Optional
 
 
 # Configure logging format
-LOG_FORMAT = "[%(levelname)s] %(asctime)s - %(name)s - %(message)s"
+LOG_FORMAT = "%(levelname)s - %(name)s - %(message)s"
 DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 # Create logger
