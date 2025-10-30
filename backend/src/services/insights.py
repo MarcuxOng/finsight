@@ -1,6 +1,3 @@
-"""
-AI-powered insights generation service.
-"""
 import json
 import google.generativeai as genai
 from datetime import datetime
@@ -45,9 +42,12 @@ async def generate_insights(user_id: str, period: str = "month") -> Dict:
         response = model.generate_content(prompt)
         
         # Parse the response
-        insights_data = json.loads(response.text.strip().replace("```json", "").replace("```", ""))
+        insights_raw = json.loads(response.text.strip().replace("```json", "").replace("```", ""))
         log_debug("Successfully parsed AI response")
-                
+        
+        # Extract data from the nested structure
+        insights_data = insights_raw.get("data", insights_raw)  # Handle both formats
+        
         # Save insights to database with new schema
         supabase = get_supabase_admin()
         
