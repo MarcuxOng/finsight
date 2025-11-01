@@ -1,13 +1,9 @@
-import google.generativeai as genai
 from typing import List, Dict
 
-from src.config import settings
 from src.database import get_supabase_admin
-from src.utils.llm_prompt import build_transaction_categorization_prompt, TRANSACTION_CATEGORIES
 from src.utils.logging import *
-
-# Configure Gemini
-genai.configure(api_key=settings.gemini_api_key)
+from src.utils.prompt import categorization_prompt, CATEGORIES
+from src.utils.llm import llm_config
 
 
 async def categorize_transaction(description: str, amount: float) -> str:
@@ -24,13 +20,13 @@ async def categorize_transaction(description: str, amount: float) -> str:
     try:
         log_debug("Categorizing transaction", {"description": description[:50], "amount": amount})
         
-        model = genai.GenerativeModel(settings.gemini_model)
-        prompt = build_transaction_categorization_prompt(description, amount)
+        model = llm_config()
+        prompt = categorization_prompt(description, amount)
         response = model.generate_content(prompt)
         category = response.text.strip()
         
         # Validate category
-        if category in TRANSACTION_CATEGORIES:
+        if category in CATEGORIES:
             log_debug("Transaction categorized successfully", {"category": category})
             return category
         else:

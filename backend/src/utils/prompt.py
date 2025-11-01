@@ -4,7 +4,7 @@ NumberLike = Any
 
 
 # Categories for transaction classification
-TRANSACTION_CATEGORIES = [
+CATEGORIES = [
     "Food & Dining",
     "Transport",
     "Entertainment",
@@ -24,7 +24,7 @@ TRANSACTION_CATEGORIES = [
 ]
 
 
-def build_financial_insights_prompt(data_context: str) -> str:
+def insights_prompt(data_context: str) -> str:
     """
     Build a prompt for generating financial insights.
 
@@ -83,7 +83,7 @@ def build_financial_insights_prompt(data_context: str) -> str:
     return prompt
 
 
-def build_transaction_categorization_prompt(description: str, amount: float) -> str:
+def categorization_prompt(description: str, amount: float) -> str:
     """
     Build a prompt for categorizing a transaction.
     
@@ -97,7 +97,7 @@ def build_transaction_categorization_prompt(description: str, amount: float) -> 
 
     prompt = f"""
         Categorize the transaction into EXACTLY ONE of these categories:
-        {', '.join(TRANSACTION_CATEGORIES)}
+        {', '.join(CATEGORIES)}
 
         Transaction description: {description}
         Amount: ${amount:,.2f}
@@ -119,7 +119,7 @@ def build_transaction_categorization_prompt(description: str, amount: float) -> 
     return prompt
 
 
-def format_financial_data_context(summary: Dict[str, Any], trends: Dict[str, Any], anomalies: List[Dict[str, Any]]) -> str:
+def format_financial_data(summary: Dict[str, Any], trends: Dict[str, Any], anomalies: List[Dict[str, Any]]) -> str:
     """
     Format financial data into a context string for LLM prompts.
     

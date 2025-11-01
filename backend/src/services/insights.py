@@ -1,16 +1,12 @@
 import json
-import google.generativeai as genai
 from datetime import datetime
 from typing import Dict, List
 
-from src.config import settings
 from src.database import get_supabase_admin
 from src.services.analytics import get_spending_summary, detect_anomalies, compare_monthly_trends
-from src.utils.llm_prompt import build_financial_insights_prompt, format_financial_data_context
 from src.utils.logging import *
-
-# Configure Gemini
-genai.configure(api_key=settings.gemini_api_key)
+from src.utils.llm import llm_config
+from src.utils.prompt import insights_prompt, format_financial_data
 
 
 async def generate_insights(user_id: str, period: str = "month") -> Dict:
@@ -32,13 +28,13 @@ async def generate_insights(user_id: str, period: str = "month") -> Dict:
     trends = await compare_monthly_trends(user_id, months=3)
     
     # Prepare data for AI analysis
-    data_context = format_financial_data_context(summary, trends, anomalies)
+    data_context = format_financial_data(summary, trends, anomalies)
 
     # Generate insights using Gemini
     try:
         log_debug("Calling Gemini API for insights generation")
-        model = genai.GenerativeModel(settings.gemini_model)
-        prompt = build_financial_insights_prompt(data_context)
+        model = llm_config()
+        prompt = insights_prompt(data_context)
         response = model.generate_content(prompt)
         
         # Parse the response
