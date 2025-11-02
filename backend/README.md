@@ -19,8 +19,8 @@ This backend service provides a complete financial management API with built-in 
 
 ### 🔐 Authentication System
 Integrated with Supabase Auth for secure user management:
-- JWT-based authentication
-- Password hashing and validation
+- Supabase-issued JWT authentication
+- Password hashing and validation handled by Supabase Auth
 - User session management
 - Row-level security enforcement
 
@@ -777,15 +777,17 @@ The API uses standard HTTP status codes:
 ## Authentication Flow
 
 1. **Registration**: User creates account via `/auth/register`
-2. **Token Issuance**: Backend returns JWT access token
+2. **Token Issuance**: Backend returns Supabase session access token (JWT)
 3. **Authenticated Requests**: Client includes token in `Authorization` header
-4. **Token Validation**: Backend validates token on each request
+4. **Token Validation**: Backend validates token on each request by calling Supabase Auth (`auth.get_user`)
 5. **User Context**: User ID extracted from token for data isolation
 
 **Authorization Header Format:**
 ```
 Authorization: Bearer <jwt_access_token>
 ```
+
+Note: Tokens are minted and signed by Supabase; the backend does not self-sign JWTs.
 
 ---
 
@@ -823,7 +825,7 @@ Set `GEMINI_API_KEY` in environment variables.
 
 - **Row Level Security**: Database-enforced user data isolation
 - **JWT Authentication**: Secure, stateless authentication
-- **Password Hashing**: Never store plaintext passwords
+- **Password Hashing**: Handled by Supabase Auth; backend never stores plaintext passwords
 - **CORS Configuration**: Restrict API access to authorized origins
 - **Input Validation**: Pydantic models validate all input data
 - **SQL Injection Protection**: Parameterized queries via ORM

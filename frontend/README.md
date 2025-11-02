@@ -12,7 +12,7 @@ This frontend application connects to the FinSight backend API to deliver a seam
 - **TypeScript** - Type-safe JavaScript for reliable code
 - **Tailwind CSS** - Utility-first CSS framework for responsive design
 - **Recharts** - Composable charting library for data visualization
-- **Supabase Auth** - Authentication client for user management
+- **Supabase-backed Auth** - Authentication via backend using Supabase-issued JWTs
 - **React Context API** - State management for authentication
 
 ## Core Features
@@ -20,10 +20,10 @@ This frontend application connects to the FinSight backend API to deliver a seam
 ### 🔐 Authentication System
 Secure user authentication with:
 - Login and registration pages
-- JWT token management
-- Protected routes
-- Session persistence
-- Automatic token refresh
+- Supabase-issued JWT management (via backend)
+- Protected routes (Next.js middleware + backend guards)
+- Session persistence (localStorage + SameSite cookie for routing)
+- 401 handling and token clearing (no automatic token refresh)
 
 ### 📊 Dashboard
 Financial overview at a glance:
@@ -170,8 +170,8 @@ Authentication state management:
 
 Centralized API communication:
 - Base URL configuration
-- Request interceptors (auth headers)
-- Response interceptors (error handling)
+- Centralized request wrapper adds Authorization header
+- 401 handling (clears token and redirects to login)
 - Type-safe API methods
 - Automatic token injection
 
@@ -372,8 +372,8 @@ Each page manages its own data:
 
 The frontend communicates with the backend API:
 - **Base URL**: Configured via `NEXT_PUBLIC_API_URL` environment variable
-- **Authentication**: JWT token in Authorization header
-- **Request Format**: JSON
+- **Authentication**: Supabase-issued JWT (provided by backend on login/register) sent in `Authorization: Bearer <token>` header
+- **Request Format**: JSON (multipart for CSV uploads)
 - **Response Format**: JSON
 
 ### Environment Variables
@@ -385,11 +385,13 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 
 ## Security Considerations
 
-- **Protected Routes**: Authentication required for app pages
-- **Token Storage**: Secure localStorage with expiration
+- **Protected Routes**: Authentication required for app pages (checked via Next.js middleware cookie)
+- **Token Storage**: Token stored in localStorage and mirrored to a SameSite cookie for routing; tokens are cleared on 401; no automatic refresh is implemented
 - **XSS Prevention**: React's built-in escaping
 - **CSRF Protection**: SameSite cookies
 - **Input Sanitization**: Validation on all user inputs
+
+Note: The frontend does not talk directly to Supabase. Authentication flows go through the backend, which integrates with Supabase Auth to issue and validate tokens.
 
 ---
 

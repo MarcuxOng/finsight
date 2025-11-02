@@ -54,7 +54,7 @@ Automatically categorize your transactions using Google Gemini AI. No manual tag
 Receive personalized financial advice based on your spending patterns. The AI analyzes your transaction history and provides actionable recommendations to improve your financial health.
 
 ### 🔐 Secure Authentication
-Your financial data is protected with industry-standard authentication via Supabase, ensuring only you have access to your information.
+Your financial data is protected with industry-standard authentication via Supabase (Supabase-issued JWTs), ensuring only you have access to your information.
 
 ### 🔍 Anomaly Detection (WIP)
 Identify unusual spending patterns automatically. FinSight alerts you when transactions deviate from your normal behavior, helping you catch unexpected charges or changing spending habits.
@@ -64,10 +64,10 @@ Identify unusual spending patterns automatically. FinSight alerts you when trans
 FinSight takes your financial data security seriously:
 
 - **Row Level Security (RLS)**: Database-level access control ensures users can only access their own data
-- **JWT Authentication**: Industry-standard token-based authentication
+- **JWT Authentication**: Supabase-issued tokens; backend validates with Supabase (not self-signed)
 - **Encrypted Communication**: All API requests use HTTPS encryption
 - **No Data Sharing**: Your financial data is never shared with third parties
-- **Secure Storage**: Passwords are hashed, and sensitive credentials are environment-protected
+- **Secure Storage**: Passwords are managed and hashed by Supabase; sensitive credentials are environment-protected
 
 ## 📝 CSV Import Format
 
