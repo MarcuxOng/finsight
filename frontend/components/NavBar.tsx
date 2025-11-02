@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { useState, useRef, useEffect } from 'react';
@@ -35,11 +36,7 @@ export default function NavBar() {
             className="flex items-center gap-2 cursor-pointer"
             onClick={() => router.push('/home')}
           >
-            <div className="bg-gradient-to-br from-[#93BFC7] to-[#ABE7B2] p-2 rounded-lg">
-              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-              </svg>
-            </div>
+            <Image src="/finsight_logo.png" alt="FinSight logo" width={70} height={70} priority className="rounded" />
             <h1 className="text-2xl font-bold bg-gradient-to-r from-[#93BFC7] to-[#ABE7B2] bg-clip-text text-transparent">
               FinSight
             </h1>

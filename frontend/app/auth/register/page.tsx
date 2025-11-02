@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
@@ -45,6 +46,9 @@ export default function RegisterPage() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#ECF4E8] to-[#CBF3BB] px-4">
       <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8">
         <div className="text-center mb-8">
+          <div className="mx-auto mb-4 w-12 h-12 relative">
+            <Image src="/finsight_logo.png" alt="FinSight logo" fill className="object-contain" priority />
+          </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             Create Account
           </h1>
