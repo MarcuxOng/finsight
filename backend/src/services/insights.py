@@ -5,7 +5,7 @@ from typing import Dict, List
 from src.database import get_supabase_admin
 from src.services.analytics import get_spending_summary, detect_anomalies, compare_monthly_trends
 from src.utils.logging import *
-from src.utils.llm import llm_config
+from src.utils.llm.gemini_config import gemini_config
 from src.utils.prompt import insights_prompt, format_financial_data
 
 
@@ -33,7 +33,7 @@ async def generate_insights(user_id: str, period: str = "month") -> Dict:
     # Generate insights using Gemini
     try:
         log_debug("Calling Gemini API for insights generation")
-        model = llm_config()
+        model = gemini_config()
         prompt = insights_prompt(data_context)
         response = model.generate_content(prompt)
         

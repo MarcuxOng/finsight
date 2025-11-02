@@ -3,7 +3,7 @@ from typing import List, Dict
 from src.database import get_supabase_admin
 from src.utils.logging import *
 from src.utils.prompt import categorization_prompt, CATEGORIES
-from src.utils.llm import llm_config
+from src.utils.llm.gemini_config import gemini_config
 
 
 async def categorize_transaction(description: str, amount: float) -> str:
@@ -20,7 +20,7 @@ async def categorize_transaction(description: str, amount: float) -> str:
     try:
         log_debug("Categorizing transaction", {"description": description[:50], "amount": amount})
         
-        model = llm_config()
+        model = gemini_config()
         prompt = categorization_prompt(description, amount)
         response = model.generate_content(prompt)
         category = response.text.strip()
