@@ -29,7 +29,7 @@ Your financial command center showing:
 - **Summary Statistics**: Total income, expenses, and savings rate
 - **Category Breakdown**: Pie charts showing spending by category
 - **Monthly Trends**: Line graphs comparing spending across months
-- **Anomaly Alerts**: Unusual transactions flagged for your review
+- **Anomaly Alerts**: Unusual transactions flagged for your review (WIP)
 
 ### AI Insights
 Generate personalized financial insights including:
