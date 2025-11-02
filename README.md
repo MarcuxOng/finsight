@@ -53,11 +53,11 @@ Automatically categorize your transactions using Google Gemini AI. No manual tag
 ### 💡 Smart Insights
 Receive personalized financial advice based on your spending patterns. The AI analyzes your transaction history and provides actionable recommendations to improve your financial health.
 
-### 🔍 Anomaly Detection
-Identify unusual spending patterns automatically. FinSight alerts you when transactions deviate from your normal behavior, helping you catch unexpected charges or changing spending habits.
-
 ### 🔐 Secure Authentication
 Your financial data is protected with industry-standard authentication via Supabase, ensuring only you have access to your information.
+
+### 🔍 Anomaly Detection (WIP)
+Identify unusual spending patterns automatically. FinSight alerts you when transactions deviate from your normal behavior, helping you catch unexpected charges or changing spending habits.
 
 ## 🔒 Security & Privacy
 
