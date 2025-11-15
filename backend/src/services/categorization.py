@@ -20,9 +20,8 @@ async def categorize_transaction(description: str, amount: float) -> str:
     try:
         log_debug("Categorizing transaction", {"description": description[:50], "amount": amount})
         
-        model = gemini_config()
         prompt = categorization_prompt(description, amount)
-        response = model.generate_content(prompt)
+        response = gemini_config(prompt)
         category = response.text.strip()
         
         # Validate category

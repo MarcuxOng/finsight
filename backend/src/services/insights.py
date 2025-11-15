@@ -33,9 +33,8 @@ async def generate_insights(user_id: str, period: str = "month") -> Dict:
     # Generate insights using Gemini
     try:
         log_debug("Calling Gemini API for insights generation")
-        model = gemini_config()
         prompt = insights_prompt(data_context)
-        response = model.generate_content(prompt)
+        response = gemini_config(prompt)
         
         # Parse the response
         insights_raw = json.loads(response.text.strip().replace("```json", "").replace("```", ""))
