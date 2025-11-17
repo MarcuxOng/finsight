@@ -56,6 +56,10 @@ Receive personalized financial advice based on your spending patterns. The AI an
 ### 🔐 Secure Authentication
 Your financial data is protected with industry-standard authentication via Supabase (Supabase-issued JWTs), ensuring only you have access to your information.
 
+**Sign-in options:**
+- Traditional email/password authentication
+- **Google OAuth** - One-click sign-in with your Google account for faster onboarding
+
 ### 🔍 Anomaly Detection (WIP)
 Identify unusual spending patterns automatically. FinSight alerts you when transactions deviate from your normal behavior, helping you catch unexpected charges or changing spending habits.
 

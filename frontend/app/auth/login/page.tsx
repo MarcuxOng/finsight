@@ -5,10 +5,11 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
+import { GoogleLogin, CredentialResponse } from '@react-oauth/google';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login } = useAuth();
+  const { login, loginWithGoogle } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -27,6 +28,28 @@ export default function LoginPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleGoogleSuccess = async (credentialResponse: CredentialResponse) => {
+    setError('');
+    setLoading(true);
+    
+    try {
+      if (!credentialResponse.credential) {
+        throw new Error('No credential received from Google');
+      }
+      
+      await loginWithGoogle(credentialResponse.credential);
+      router.push('/home');
+    } catch (err: any) {
+      setError(err.message || 'Failed to login with Google');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleError = () => {
+    setError('Google login failed');
   };
 
   return (
@@ -90,7 +113,30 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <p className="mt-6 text-center text-sm text-gray-600">
+          <div className="mt-6">
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-300"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-white text-gray-500">Or continue with</span>
+            </div>
+          </div>
+
+          <div className="mt-4">
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={handleGoogleError}
+              useOneTap
+              auto_select={false}
+              cancel_on_tap_outside={false}
+              theme="outline"
+              size="large"
+              width="100%"
+              text="signin_with"
+            />
+          </div>
+        </div>        <p className="mt-6 text-center text-sm text-gray-600">
           Don't have an account?{' '}
           <Link href="/auth/register" className="text-[#93BFC7] hover:text-[#7AABB5] font-medium">
             Sign up

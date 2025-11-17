@@ -5,10 +5,11 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
+import { GoogleLogin, CredentialResponse } from '@react-oauth/google';
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { register } = useAuth();
+  const { register, loginWithGoogle } = useAuth();
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -40,6 +41,28 @@ export default function RegisterPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleGoogleSuccess = async (credentialResponse: CredentialResponse) => {
+    setError('');
+    setLoading(true);
+    
+    try {
+      if (!credentialResponse.credential) {
+        throw new Error('No credential received from Google');
+      }
+      
+      await loginWithGoogle(credentialResponse.credential);
+      router.push('/home');
+    } catch (err: any) {
+      setError(err.message || 'Failed to sign up with Google');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleError = () => {
+    setError('Google sign up failed');
   };
 
   return (
@@ -132,6 +155,28 @@ export default function RegisterPage() {
             {loading ? 'Creating account...' : 'Create Account'}
           </button>
         </form>
+
+        <div className="mt-6">
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-300"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-white text-gray-500">Or continue with</span>
+            </div>
+          </div>
+
+          <div className="mt-4">
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={handleGoogleError}
+              theme="outline"
+              size="large"
+              width="100%"
+              text="signup_with"
+            />
+          </div>
+        </div>
 
         <p className="mt-6 text-center text-sm text-gray-600">
           Already have an account?{' '}

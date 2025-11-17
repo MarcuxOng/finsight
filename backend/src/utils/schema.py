@@ -30,6 +30,10 @@ class PasswordChange(BaseModel):
     new_password: str
 
 
+class GoogleAuthRequest(BaseModel):
+    token: str
+
+
 # ============= Transaction Models =============
 class TransactionCreate(BaseModel):
     date: date

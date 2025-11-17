@@ -14,6 +14,10 @@ class Settings(BaseSettings):
     supabase_url: str
     supabase_key: str
     supabase_service_key: str
+
+    google_client_id: str = ""
+    google_client_secret: str = ""
+    google_redirect_uri: str = ""
     
     gemini_api_key: str
     gemini_model: str

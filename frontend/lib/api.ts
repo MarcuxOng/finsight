@@ -111,6 +111,16 @@ export class ApiClient {
     return response;
   }
 
+  async googleAuth(token: string) {
+    const response = await this.request<{ access_token: string; user: any }>('/auth/google', {
+      method: 'POST',
+      body: JSON.stringify({ token }),
+    });
+    
+    this.setToken(response.access_token);
+    return response;
+  }
+
   logout() {
     this.setToken(null);
   }

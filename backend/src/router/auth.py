@@ -1,9 +1,12 @@
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from google.oauth2 import id_token
+from google.auth.transport import requests as google_requests
 
 from src.database import get_supabase, get_supabase_admin
-from src.utils.schema import Token, UserRegister, UserLogin, ProfileUpdate, PasswordChange
+from src.utils.schema import Token, UserRegister, UserLogin, ProfileUpdate, PasswordChange, GoogleAuthRequest
 from src.utils.auth import get_current_user_id
+from src.config import settings
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 security = HTTPBearer()
@@ -151,5 +154,87 @@ async def change_password(
         }
     except HTTPException:
         raise
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.post("/google", response_model=Token)
+async def google_auth(auth_request: GoogleAuthRequest):
+    """Authenticate user with Google OAuth token."""
+    try:
+        # Verify the Google ID token
+        idinfo = id_token.verify_oauth2_token(
+            auth_request.token,
+            google_requests.Request(),
+            settings.google_client_id
+        )
+        
+        # Extract user info from Google token
+        email = idinfo.get('email')
+        google_id = idinfo.get('sub')
+        name = idinfo.get('name', '')
+        
+        if not email:
+            raise HTTPException(status_code=400, detail="Email not found in Google token")
+        
+        supabase = get_supabase()
+        
+        # Try to sign in with OAuth (if user exists)
+        try:
+            # Check if user exists by trying to get their info
+            # Since Supabase doesn't have a direct "check user exists" endpoint,
+            # we'll attempt to sign in with OAuth
+            auth_response = supabase.auth.sign_in_with_id_token({
+                "provider": "google",
+                "token": auth_request.token
+            })
+            
+            if auth_response.user:
+                return Token(
+                    access_token=auth_response.session.access_token,
+                    user={
+                        "id": auth_response.user.id,
+                        "email": auth_response.user.email,
+                        "username": auth_response.user.user_metadata.get("username", name)
+                    }
+                )
+        except Exception:
+            pass  # User doesn't exist, proceed to create
+        
+        # If user doesn't exist, create a new one using admin client
+        supabase_admin = get_supabase_admin()
+        
+        # Create user with Google OAuth provider
+        create_response = supabase_admin.auth.admin.create_user({
+            "email": email,
+            "email_confirm": True,  # Auto-confirm email for Google users
+            "user_metadata": {
+                "username": name,
+                "google_id": google_id,
+                "provider": "google"
+            }
+        })
+        
+        if not create_response.user:
+            raise HTTPException(status_code=400, detail="Failed to create user")
+        
+        # Generate session for the new user
+        auth_response = supabase.auth.sign_in_with_id_token({
+            "provider": "google",
+            "token": auth_request.token
+        })
+        
+        return Token(
+            access_token=auth_response.session.access_token,
+            user={
+                "id": create_response.user.id,
+                "email": create_response.user.email,
+                "username": name
+            }
+        )
+        
+    except ValueError as e:
+        # Invalid token
+        raise HTTPException(status_code=401, detail=f"Invalid Google token: {str(e)}")
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
