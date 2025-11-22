@@ -57,7 +57,7 @@ export default function LoginPage() {
       <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8">
         <div className="text-center mb-8">
           <div className="mx-auto mb-4 w-12 h-12 relative">
-            <Image src="/finsight_logo.png" alt="FinSight logo" fill className="object-contain" priority />
+            <Image src="/finsight_logo.png" alt="FinSight logo" fill sizes="48px" className="object-contain" priority />
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             Welcome to FinSight
@@ -136,7 +136,8 @@ export default function LoginPage() {
               text="signin_with"
             />
           </div>
-        </div>        <p className="mt-6 text-center text-sm text-gray-600">
+        </div>        
+        <p className="mt-6 text-center text-sm text-gray-600">
           Don't have an account?{' '}
           <Link href="/auth/register" className="text-[#93BFC7] hover:text-[#7AABB5] font-medium">
             Sign up
