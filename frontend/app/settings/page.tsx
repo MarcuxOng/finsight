@@ -389,7 +389,16 @@ export default function SettingsPage() {
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Member Since:</span>
-              <span className="text-gray-900">October 2025</span>
+              <span className="text-gray-900">
+                {user?.created_at 
+                  ? new Date(user.created_at).toLocaleDateString('en-US', { 
+                      year: 'numeric', 
+                      month: 'long', 
+                      day: 'numeric' 
+                    })
+                  : 'N/A'
+                }
+              </span>
             </div>
           </div>
         </div>

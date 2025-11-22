@@ -36,7 +36,8 @@ async def register(user: UserRegister):
             user={
                 "id": auth_response.user.id,
                 "email": auth_response.user.email,
-                "username": user.username
+                "username": user.username,
+                "created_at": auth_response.user.created_at
             }
         )
     except Exception as e:
@@ -63,7 +64,8 @@ async def login(user: UserLogin):
             user={
                 "id": auth_response.user.id,
                 "email": auth_response.user.email,
-                "username": auth_response.user.user_metadata.get("username", "")
+                "username": auth_response.user.user_metadata.get("username", ""),
+                "created_at": auth_response.user.created_at
             }
         )
     except Exception as e:
@@ -105,7 +107,8 @@ async def update_profile(
             "user": {
                 "id": user_response.user.id,
                 "email": user_response.user.email,
-                "username": profile.username
+                "username": profile.username,
+                "created_at": user_response.user.created_at
             }
         }
     except HTTPException:
@@ -195,7 +198,8 @@ async def google_auth(auth_request: GoogleAuthRequest):
                     user={
                         "id": auth_response.user.id,
                         "email": auth_response.user.email,
-                        "username": auth_response.user.user_metadata.get("username", name)
+                        "username": auth_response.user.user_metadata.get("username", name),
+                        "created_at": auth_response.user.created_at
                     }
                 )
         except Exception:
@@ -229,7 +233,8 @@ async def google_auth(auth_request: GoogleAuthRequest):
             user={
                 "id": create_response.user.id,
                 "email": create_response.user.email,
-                "username": name
+                "username": name,
+                "created_at": create_response.user.created_at
             }
         )
         
