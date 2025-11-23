@@ -59,8 +59,8 @@ export default function UploadPage() {
 
   const handleFile = (file: File) => {
     // Validate file type
-    if (!file.name.endsWith('.csv')) {
-      setError('Please upload a CSV file');
+    if (!file.name.endsWith('.csv') && !file.name.endsWith('.xlsx')) {
+      setError('Please upload a CSV or Excel (.xlsx) file');
       return;
     }
     
@@ -95,11 +95,11 @@ export default function UploadPage() {
   const handleDownloadTemplate = async () => {
     try {
       const template = await api.downloadTemplate();
-      const blob = new Blob([template], { type: 'text/csv' });
+      const blob = new Blob([template], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'transactions_template.csv';
+      a.download = 'transactions_template.xlsx';
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -142,7 +142,7 @@ export default function UploadPage() {
           <div className="bg-white rounded-lg shadow-md p-6 mb-6">
             <h2 className="text-lg font-semibold text-gray-800 mb-4">How to Upload</h2>
             <ol className="list-decimal list-inside space-y-2 text-gray-600">
-              <li>Download the CSV template or prepare your own CSV file</li>
+              <li>Download the Excel template or prepare your own CSV/Excel file</li>
               <li>Fill in your transaction data with columns: date, description, amount, type (optional)</li>
               <li>Drag and drop the file below or click to browse</li>
               <li>Click "Upload" to import your transactions</li>
@@ -152,7 +152,7 @@ export default function UploadPage() {
               onClick={handleDownloadTemplate}
               className="mt-4 px-4 py-2 bg-[#93BFC7] text-white rounded-lg hover:bg-[#7AABB5] transition"
             >
-              📥 Download CSV Template
+              📥 Download Excel Template
             </button>
           </div>
 
@@ -171,7 +171,7 @@ export default function UploadPage() {
             >
               <input
                 type="file"
-                accept=".csv"
+                accept=".csv,.xlsx"
                 onChange={handleFileInput}
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
               />
@@ -193,7 +193,7 @@ export default function UploadPage() {
                 <p className="mt-2 text-sm text-gray-600">
                   <span className="font-semibold text-[#93BFC7]">Click to upload</span> or drag and drop
                 </p>
-                <p className="text-xs text-gray-500 mt-1">CSV files only (max 10MB)</p>
+                <p className="text-xs text-gray-500 mt-1">CSV or Excel (.xlsx) files (max 10MB)</p>
               </div>
             </div>
 
@@ -359,9 +359,9 @@ export default function UploadPage() {
             </div>
           )}
 
-          {/* CSV Format Example */}
+          {/* Format Example */}
           <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4">CSV Format Example</h2>
+            <h2 className="text-lg font-semibold text-gray-800 mb-4">File Format Example</h2>
             <div className="bg-gray-50 rounded-lg p-4 overflow-x-auto">
               <pre className="text-sm text-gray-800 font-mono">
 {`date,description,amount,type
@@ -372,7 +372,7 @@ export default function UploadPage() {
               </pre>
             </div>
             <p className="mt-3 text-sm text-gray-600">
-              <strong>Note:</strong> The 'type' column is optional. If not specified, transactions will be categorized as 'expense' by default.
+              <strong>Note:</strong> The 'type' column is optional. If not specified, transactions will be categorized as 'expense' by default. Both CSV and Excel (.xlsx) files are supported.
             </p>
           </div>
         </div>

@@ -1,21 +1,23 @@
 import pandas as pd
 from io import StringIO
+from pathlib import Path
 from typing import Dict
 
 from src.database import get_supabase_admin
 from src.services.categorization import categorize_transaction
 
 
-async def parse_csv_file(file_content: str, user_id: str) -> Dict:
+async def parse_csv_file(file_content: str, user_id: str, file_extension: str = '.csv') -> Dict:
     """
-    Parse CSV file and import transactions.
+    Parse CSV or Excel file and import transactions.
     
-    Expected CSV format:
+    Expected format:
     date, description, amount, type (optional)
     
     Args:
-        file_content: CSV file content as string
+        file_content: File content as string (for CSV) or bytes (for Excel)
         user_id: User ID
+        file_extension: File extension (.csv or .xlsx)
         
     Returns:
         Dictionary with import results
@@ -25,8 +27,12 @@ async def parse_csv_file(file_content: str, user_id: str) -> Dict:
     failed_imports = 0
     
     try:
-        # Read CSV
-        df = pd.read_csv(StringIO(file_content))
+        # Read file based on extension
+        if file_extension == '.xlsx':
+            from io import BytesIO
+            df = pd.read_excel(BytesIO(file_content))
+        else:
+            df = pd.read_csv(StringIO(file_content))
         
         # Validate required columns
         required_columns = ['date', 'description', 'amount']
@@ -95,12 +101,17 @@ async def parse_csv_file(file_content: str, user_id: str) -> Dict:
         }
 
 
-async def get_csv_template() -> str:
+async def get_csv_template():
     """
-    Generate a CSV template for users.
+    Get Excel template for users.
     
     Returns:
-        CSV template string with column headers only
+        Excel file content as bytes
     """
-    template = "date,description,amount,type\n"
-    return template
+    
+    # Get the path to the template file (go up from services/ to src/ then to dumps/)
+    template_path = Path(__file__).parent.parent / 'dumps' / 'transactions_template.xlsx'
+    
+    # Read and return the file content
+    with open(template_path, 'rb') as f:
+        return f.read()

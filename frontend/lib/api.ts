@@ -231,7 +231,12 @@ export class ApiClient {
       headers,
     });
 
-    return await response.text();
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.detail || 'Download failed');
+    }
+
+    return await response.arrayBuffer();
   }
 }
 
