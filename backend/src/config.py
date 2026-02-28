@@ -21,6 +21,16 @@ class Settings(BaseSettings):
     
     gemini_api_key: str
     gemini_model: str
+
+    groq_api_key: str
+    groq_model: str
+
+    openrouter_url: str
+    openrouter_api_key: str
+    openrouter_model: str
+
+    mistral_api_key: str
+    mistral_model: str
     
     cors_origins: str 
     max_upload_size_mb: int
