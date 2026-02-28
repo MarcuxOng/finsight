@@ -38,6 +38,29 @@ const CATEGORY_COLORS: Record<string, string> = {
 // Default colors for unmapped categories
 const DEFAULT_COLORS = CHART_COLORS;
 
+// Tooltip types and component moved to module scope to avoid creating components during render
+interface PieTooltipPayload {
+  name?: string;
+  value?: number;
+}
+
+interface PieTooltipProps {
+  active?: boolean;
+  payload?: PieTooltipPayload[];
+}
+
+const PieCustomTooltip = ({ active, payload }: PieTooltipProps) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-white p-3 rounded-lg shadow-lg border border-gray-200">
+        <p className="font-semibold text-gray-900">{payload[0].name}</p>
+        <p className="text-sm text-gray-600">${payload[0].value?.toFixed(2)}</p>
+      </div>
+    );
+  }
+  return null;
+};
+
 export default function CategoryPieChart({ data }: CategoryPieChartProps) {
   // Transform data for recharts with category-specific colors
   const chartData = data.slice(0, 7).map(item => ({
@@ -45,20 +68,6 @@ export default function CategoryPieChart({ data }: CategoryPieChartProps) {
     value: item.total,
     color: CATEGORY_COLORS[item.category] || DEFAULT_COLORS[0],
   }));
-
-  const CustomTooltip = ({ active, payload }: any) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-white p-3 rounded-lg shadow-lg border border-gray-200">
-          <p className="font-semibold text-gray-900">{payload[0].name}</p>
-          <p className="text-sm text-gray-600">
-            ${payload[0].value.toFixed(2)}
-          </p>
-        </div>
-      );
-    }
-    return null;
-  };
 
   if (chartData.length === 0) {
     return (
@@ -76,7 +85,7 @@ export default function CategoryPieChart({ data }: CategoryPieChartProps) {
           cx="50%"
           cy="50%"
           labelLine={false}
-          label={({ name, percent }: any) => `${name} (${(percent * 100).toFixed(0)}%)`}
+          label={({ name, percent }: { name: string; percent: number }) => `${name} (${(percent * 100).toFixed(0)}%)`}
           outerRadius={80}
           fill="#8884d8"
           dataKey="value"
@@ -85,7 +94,7 @@ export default function CategoryPieChart({ data }: CategoryPieChartProps) {
             <Cell key={`cell-${index}`} fill={entry.color} />
           ))}
         </Pie>
-        <Tooltip content={<CustomTooltip />} />
+        <Tooltip content={PieCustomTooltip} />
         <Legend />
       </PieChart>
     </ResponsiveContainer>

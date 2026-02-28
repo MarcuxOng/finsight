@@ -76,8 +76,12 @@ export default function SettingsPage() {
       localStorage.setItem('user_data', JSON.stringify(userData));
 
       setMessage({ type: 'success', text: 'Profile updated successfully!' });
-    } catch (error: any) {
-      setMessage({ type: 'error', text: error.message || 'Failed to update profile' });
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setMessage({ type: 'error', text: error.message || 'Failed to update profile' });
+      } else {
+        setMessage({ type: 'error', text: 'Failed to update profile' });
+      }
     } finally {
       setLoading(false);
     }
@@ -109,8 +113,12 @@ export default function SettingsPage() {
         newPassword: '',
         confirmPassword: '',
       });
-    } catch (error: any) {
-      setMessage({ type: 'error', text: error.message || 'Failed to change password' });
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setMessage({ type: 'error', text: error.message || 'Failed to change password' });
+      } else {
+        setMessage({ type: 'error', text: 'Failed to change password' });
+      }
     } finally {
       setLoading(false);
     }

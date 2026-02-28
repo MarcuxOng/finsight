@@ -12,9 +12,35 @@ interface IncomeExpenseChartProps {
   data: MonthlyData[];
 }
 
+interface BarTooltipEntry {
+  name?: string;
+  value?: number;
+  fill?: string;
+}
+
+interface BarTooltipProps {
+  active?: boolean;
+  payload?: BarTooltipEntry[];
+  label?: string;
+}
+
+const IncomeExpenseCustomTooltip = ({ active, payload, label }: BarTooltipProps) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-white p-4 rounded-lg shadow-lg border border-gray-200">
+        <p className="font-semibold text-gray-900 mb-2">{label}</p>
+        {payload.map((entry, index) => (
+          <p key={index} className="text-sm" style={{ color: entry.fill }}>
+            {entry.name}: ${entry.value?.toFixed(2)}
+          </p>
+        ))}
+      </div>
+    );
+  }
+  return null;
+};
+
 export default function IncomeExpenseChart({ data }: IncomeExpenseChartProps) {
-  console.log('IncomeExpenseChart received data:', data);
-  
   // Check if data exists and is an array
   if (!data || !Array.isArray(data) || data.length === 0) {
     return (
@@ -23,31 +49,13 @@ export default function IncomeExpenseChart({ data }: IncomeExpenseChartProps) {
       </div>
     );
   }
-  
+
   // Transform data for recharts (reverse to show chronological order)
   const chartData = [...data].reverse().map(item => ({
     month: item.month.split(' ')[0], // Just the month name
     income: item.total_income,
     expense: item.total_expense,
   }));
-  
-  console.log('IncomeExpenseChart chartData:', chartData);
-
-  const CustomTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-white p-4 rounded-lg shadow-lg border border-gray-200">
-          <p className="font-semibold text-gray-900 mb-2">{label}</p>
-          {payload.map((entry: any, index: number) => (
-            <p key={index} className="text-sm" style={{ color: entry.fill }}>
-              {entry.name}: ${entry.value.toFixed(2)}
-            </p>
-          ))}
-        </div>
-      );
-    }
-    return null;
-  };
 
   return (
     <ResponsiveContainer width="100%" height={300}>
@@ -63,7 +71,7 @@ export default function IncomeExpenseChart({ data }: IncomeExpenseChartProps) {
           style={{ fontSize: '12px' }}
           tickFormatter={(value: number) => `$${value}`}
         />
-        <Tooltip content={<CustomTooltip />} />
+        <Tooltip content={IncomeExpenseCustomTooltip} />
         <Legend />
         <Bar 
           dataKey="income" 

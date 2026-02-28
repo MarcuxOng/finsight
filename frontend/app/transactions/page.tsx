@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { api } from '@/lib/api';
@@ -67,18 +67,13 @@ export default function TransactionsPage() {
     }
   }, [user, authLoading, router]);
 
-  useEffect(() => {
-    if (user) {
-      fetchTransactions();
-    }
-  }, [user, startDate, endDate, categoryFilter, typeFilter]);
-
-  const fetchTransactions = async () => {
+  const fetchTransactions = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
       
-      const params: any = {};
+      // Build query params as strings
+      const params: Record<string, string> = {};
       if (startDate) params.start_date = startDate;
       if (endDate) params.end_date = endDate;
       if (categoryFilter) params.category = categoryFilter;
@@ -86,12 +81,22 @@ export default function TransactionsPage() {
       
       const data = await api.getTransactions(params) as Transaction[];
       setTransactions(data);
-    } catch (err: any) {
-      setError(err.message || 'Failed to load transactions');
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message || 'Failed to load transactions');
+      } else {
+        setError('Failed to load transactions');
+      }
     } finally {
       setLoading(false);
     }
-  };
+  }, [startDate, endDate, categoryFilter, typeFilter]);
+
+  useEffect(() => {
+    if (user) {
+      fetchTransactions();
+    }
+  }, [user, fetchTransactions]);
 
   const handleSort = (field: 'date' | 'amount' | 'category') => {
     if (sortField === field) {
@@ -103,21 +108,21 @@ export default function TransactionsPage() {
   };
 
   const sortedTransactions = [...transactions].sort((a, b) => {
-    let aVal: any = a[sortField];
-    let bVal: any = b[sortField];
-    
+    let aVal: unknown = a[sortField];
+    let bVal: unknown = b[sortField];
+    // Type conversion for sorting: normalize to numbers
     if (sortField === 'date') {
-      aVal = new Date(aVal).getTime();
-      bVal = new Date(bVal).getTime();
+      aVal = typeof aVal === 'string' || typeof aVal === 'number' ? new Date(aVal).getTime() : 0;
+      bVal = typeof bVal === 'string' || typeof bVal === 'number' ? new Date(bVal).getTime() : 0;
     } else if (sortField === 'amount') {
-      aVal = parseFloat(aVal);
-      bVal = parseFloat(bVal);
+      aVal = typeof aVal === 'string' || typeof aVal === 'number' ? Number(aVal) : 0;
+      bVal = typeof bVal === 'string' || typeof bVal === 'number' ? Number(bVal) : 0;
     }
     
     if (sortDirection === 'asc') {
-      return aVal > bVal ? 1 : -1;
+      return (aVal as number) > (bVal as number) ? 1 : -1;
     } else {
-      return aVal < bVal ? 1 : -1;
+      return (aVal as number) < (bVal as number) ? 1 : -1;
     }
   });
 
@@ -146,8 +151,12 @@ export default function TransactionsPage() {
       
       setEditingTransaction(null);
       fetchTransactions();
-    } catch (err: any) {
-      alert(`Failed to update transaction: ${err.message}`);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        alert(`Failed to update transaction: ${err.message}`);
+      } else {
+        alert('Failed to update transaction');
+      }
     }
   };
 
@@ -156,8 +165,12 @@ export default function TransactionsPage() {
       await api.deleteTransaction(id);
       fetchTransactions();
       setDeletingId(null);
-    } catch (err: any) {
-      alert(`Failed to delete transaction: ${err.message}`);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        alert(`Failed to delete transaction: ${err.message}`);
+      } else {
+        alert('Failed to delete transaction');
+      }
     }
   };
 
@@ -187,8 +200,12 @@ export default function TransactionsPage() {
       );
       setSuggestedCategory(response.category);
       setCreateForm({ ...createForm, category: response.category });
-    } catch (err: any) {
-      console.error('Failed to get category suggestion:', err);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        console.error('Failed to get category suggestion:', err);
+      } else {
+        console.error('Failed to get category suggestion:', err);
+      }
     } finally {
       setLoadingSuggestion(false);
     }
@@ -223,8 +240,12 @@ export default function TransactionsPage() {
       
       // Refresh transactions
       fetchTransactions();
-    } catch (err: any) {
-      alert(`Failed to create transaction: ${err.message}`);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        alert(`Failed to create transaction: ${err.message}`);
+      } else {
+        alert('Failed to create transaction');
+      }
     }
   };
 

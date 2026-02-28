@@ -13,9 +13,35 @@ interface SpendingTrendsChartProps {
   data: MonthlyData[];
 }
 
+interface LineTooltipEntry {
+  name?: string;
+  value?: number;
+  color?: string;
+}
+
+interface LineTooltipProps {
+  active?: boolean;
+  payload?: LineTooltipEntry[];
+  label?: string;
+}
+
+const SpendingTrendsCustomTooltip = ({ active, payload, label }: LineTooltipProps) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-white p-4 rounded-lg shadow-lg border border-gray-200">
+        <p className="font-semibold text-gray-900 mb-2">{label}</p>
+        {payload.map((entry, index) => (
+          <p key={index} className="text-sm" style={{ color: entry.color }}>
+            {entry.name}: ${entry.value?.toFixed(2)}
+          </p>
+        ))}
+      </div>
+    );
+  }
+  return null;
+};
+
 export default function SpendingTrendsChart({ data }: SpendingTrendsChartProps) {
-  console.log('SpendingTrendsChart received data:', data);
-  
   // Check if data exists and is an array
   if (!data || !Array.isArray(data) || data.length === 0) {
     return (
@@ -24,7 +50,7 @@ export default function SpendingTrendsChart({ data }: SpendingTrendsChartProps) 
       </div>
     );
   }
-  
+
   // Transform data for recharts (reverse to show chronological order)
   const chartData = [...data].reverse().map(item => ({
     month: item.month.split(' ')[0], // Just the month name (e.g., "January")
@@ -32,24 +58,6 @@ export default function SpendingTrendsChart({ data }: SpendingTrendsChartProps) 
     expense: item.total_expense,
     net: item.net,
   }));
-  
-  console.log('SpendingTrendsChart chartData:', chartData);
-
-  const CustomTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-white p-4 rounded-lg shadow-lg border border-gray-200">
-          <p className="font-semibold text-gray-900 mb-2">{label}</p>
-          {payload.map((entry: any, index: number) => (
-            <p key={index} className="text-sm" style={{ color: entry.color }}>
-              {entry.name}: ${entry.value.toFixed(2)}
-            </p>
-          ))}
-        </div>
-      );
-    }
-    return null;
-  };
 
   return (
     <ResponsiveContainer width="100%" height={300}>
@@ -65,7 +73,7 @@ export default function SpendingTrendsChart({ data }: SpendingTrendsChartProps) 
           style={{ fontSize: '12px' }}
           tickFormatter={(value: number) => `$${value}`}
         />
-        <Tooltip content={<CustomTooltip />} />
+        <Tooltip content={SpendingTrendsCustomTooltip} />
         <Legend />
         <Line 
           type="monotone" 

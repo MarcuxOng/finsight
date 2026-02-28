@@ -5,6 +5,13 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { api } from '@/lib/api';
 import type { SpendingSummary } from '@/types';
+
+interface InsightGroup {
+    timestamp: string;
+    summary?: { content: string };
+    trends?: Array<{ content: string }>;
+    advice?: Array<{ content: string }>;
+}
 import AppLayout from '@/components/AppLayout';
 import Loading from '@/components/Loading';
 
@@ -12,7 +19,7 @@ export default function HomePage() {
     const router = useRouter();
     const { user, loading: authLoading } = useAuth();
     const [summary, setSummary] = useState<SpendingSummary | null>(null);
-    const [insightGroups, setInsightGroups] = useState<any[]>([]);
+    const [insightGroups, setInsightGroups] = useState<InsightGroup[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -38,7 +45,7 @@ export default function HomePage() {
         
         // Store grouped insights for dashboard display
         if (Array.isArray(insightsData)) {
-            setInsightGroups((insightsData as any[]).slice(0, 2)); // Show 2 most recent groups
+            setInsightGroups((insightsData as InsightGroup[]).slice(0, 2)); // Show 2 most recent groups
         }
       } catch (error) {
         console.error('Failed to load dashboard data:', error);
@@ -169,7 +176,7 @@ export default function HomePage() {
                 </div>
                 <div className="p-6">
                     <div className="space-y-6">
-                    {insightGroups.map((group, groupIndex) => (
+                    {insightGroups.map((group: InsightGroup, groupIndex: number) => (
                         <div key={groupIndex} className="border-l-4 border-[#93BFC7] pl-4">
                         <div className="text-xs text-gray-500 mb-3">
                             {new Date(group.timestamp).toLocaleDateString('en-US', {
@@ -202,7 +209,7 @@ export default function HomePage() {
                                 </span>
                             </div>
                             <ul className="ml-6 space-y-1">
-                                {group.trends.slice(0, 2).map((trend: any, idx: number) => (
+                                {group.trends?.slice(0, 2).map((trend, idx: number) => (
                                 <li key={idx} className="text-sm text-gray-700 leading-relaxed flex gap-2">
                                     <span className="text-[#ABE7B2]">•</span>
                                     <span className="line-clamp-2">{trend.content}</span>
@@ -227,7 +234,7 @@ export default function HomePage() {
                                 </span>
                             </div>
                             <ul className="ml-6 space-y-1">
-                                {group.advice.slice(0, 2).map((advice: any, idx: number) => (
+                                {group.advice?.slice(0, 2).map((advice, idx: number) => (
                                 <li key={idx} className="text-sm text-gray-700 leading-relaxed flex gap-2">
                                     <span className="text-[#CBF3BB]">•</span>
                                     <span className="line-clamp-2">{advice.content}</span>

@@ -36,8 +36,12 @@ export default function RegisterPage() {
     try {
       await register(email, password, username);
       router.push('/auth/login');
-    } catch (err: any) {
-      setError(err.message || 'Failed to create account');
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message || 'Failed to create account');
+      } else {
+        setError('Failed to create account');
+      }
     } finally {
       setLoading(false);
     }
@@ -54,8 +58,12 @@ export default function RegisterPage() {
       
       await loginWithGoogle(credentialResponse.credential);
       router.push('/home');
-    } catch (err: any) {
-      setError(err.message || 'Failed to sign up with Google');
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message || 'Failed to sign up with Google');
+      } else {
+        setError('Failed to sign up with Google');
+      }
     } finally {
       setLoading(false);
     }
