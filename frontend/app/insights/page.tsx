@@ -1,22 +1,41 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { api } from '@/lib/api';
-import { Insight, InsightsResponse } from '@/types';
+import { InsightsResponse } from '@/types';
 import AppLayout from '@/components/AppLayout';
 import Loading from '@/components/Loading';
 
 export default function InsightsPage() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
-  const [insights, setInsights] = useState<Insight[]>([]);
+  const [insights, setInsights] = useState<InsightGroup[]>([]);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState('');
   const [period, setPeriod] = useState('month');
   const [latestGeneration, setLatestGeneration] = useState<InsightsResponse | null>(null);
+
+  const fetchInsights = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError('');
+      const data = await api.getInsights(20) as InsightGroup[];
+      setInsights(data);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message || 'Failed to load insights');
+        console.error('Error fetching insights:', err);
+      } else {
+        setError('Failed to load insights');
+        console.error('Error fetching insights:', err);
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -26,21 +45,7 @@ export default function InsightsPage() {
     if (user) {
       fetchInsights();
     }
-  }, [user, authLoading]);
-
-  const fetchInsights = async () => {
-    try {
-      setLoading(true);
-      setError('');
-      const data = await api.getInsights(20) as Insight[];
-      setInsights(data);
-    } catch (err: any) {
-      setError(err.message || 'Failed to load insights');
-      console.error('Error fetching insights:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [user, authLoading, fetchInsights, router]);
 
   const handleGenerateInsights = async () => {
     try {
@@ -50,43 +55,27 @@ export default function InsightsPage() {
       setLatestGeneration(response);
       // Refresh insights list
       await fetchInsights();
-    } catch (err: any) {
-      setError(err.message || 'Failed to generate insights');
-      console.error('Error generating insights:', err);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message || 'Failed to generate insights');
+        console.error('Error generating insights:', err);
+      } else {
+        setError('Failed to generate insights');
+        console.error('Error generating insights:', err);
+      }
     } finally {
       setGenerating(false);
     }
   };
 
-  const getInsightIcon = (type: string) => {
-    switch (type) {
-      case 'summary':
-        return '📊';
-      case 'trend':
-        return '📈';
-      case 'advice':
-        return '💡';
-      case 'alert':
-        return '⚠️';
-      default:
-        return '📝';
-    }
-  };
+  // Removed unused helpers `getInsightIcon` and `getInsightBadgeColor` to satisfy lint
 
-  const getInsightBadgeColor = (type: string) => {
-    switch (type) {
-      case 'summary':
-        return 'bg-[#93BFC7] text-white';
-      case 'trend':
-        return 'bg-[#ABE7B2] text-gray-700';
-      case 'advice':
-        return 'bg-[#CBF3BB] text-gray-700';
-      case 'alert':
-        return 'bg-red-100 text-red-700';
-      default:
-        return 'bg-gray-100 text-gray-700';
-    }
-  };
+  interface InsightGroup {
+    timestamp: string;
+    summary?: { content: string };
+    trends?: Array<{ content: string }>;
+    advice?: Array<{ content: string }>;
+  }
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -312,7 +301,7 @@ export default function InsightsPage() {
             </div>
           ) : (
             <div className="space-y-6">
-              {insights.map((group: any, groupIndex: number) => (
+              {insights.map((group: InsightGroup, groupIndex: number) => (
                 <div key={groupIndex} className="bg-white rounded-xl shadow-sm p-6">
                   <div className="text-sm text-gray-500 mb-4">
                     {formatDate(group.timestamp)}
@@ -343,7 +332,7 @@ export default function InsightsPage() {
                         </span>
                       </div>
                       <ul className="ml-9 space-y-2">
-                        {group.trends.map((trend: any, idx: number) => (
+                        {group.trends?.map((trend, idx: number) => (
                           <li key={idx} className="text-gray-700 leading-relaxed flex gap-2">
                             <span className="text-[#ABE7B2] font-bold">•</span>
                             <span>{trend.content}</span>
@@ -363,7 +352,7 @@ export default function InsightsPage() {
                         </span>
                       </div>
                       <ul className="ml-9 space-y-2">
-                        {group.advice.map((advice: any, idx: number) => (
+                        {group.advice?.map((advice, idx: number) => (
                           <li key={idx} className="text-gray-700 leading-relaxed flex gap-2">
                             <span className="text-[#CBF3BB] font-bold">•</span>
                             <span>{advice.content}</span>

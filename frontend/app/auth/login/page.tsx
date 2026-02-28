@@ -23,8 +23,12 @@ export default function LoginPage() {
     try {
       await login(email, password);
       router.push('/home');
-    } catch (err: any) {
-      setError(err.message || 'Failed to login');
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message || 'Failed to login');
+      } else {
+        setError('Failed to login');
+      }
     } finally {
       setLoading(false);
     }
@@ -41,8 +45,12 @@ export default function LoginPage() {
       
       await loginWithGoogle(credentialResponse.credential);
       router.push('/home');
-    } catch (err: any) {
-      setError(err.message || 'Failed to login with Google');
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message || 'Failed to login with Google');
+      } else {
+        setError('Failed to login with Google');
+      }
     } finally {
       setLoading(false);
     }
@@ -138,7 +146,7 @@ export default function LoginPage() {
           </div>
         </div>        
         <p className="mt-6 text-center text-sm text-gray-600">
-          Don't have an account?{' '}
+          Don&apos;t have an account?{' '}
           <Link href="/auth/register" className="text-[#93BFC7] hover:text-[#7AABB5] font-medium">
             Sign up
           </Link>

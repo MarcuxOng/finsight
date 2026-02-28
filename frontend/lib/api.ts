@@ -1,3 +1,5 @@
+import type { User, Transaction } from '@/types';
+
 // API configuration and utilities
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
@@ -102,7 +104,7 @@ export class ApiClient {
   }
 
   async login(email: string, password: string) {
-    const response = await this.request<{ access_token: string; user: any }>('/auth/login', {
+    const response = await this.request<{ access_token: string; user: User }>('/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     });
@@ -112,7 +114,7 @@ export class ApiClient {
   }
 
   async googleAuth(token: string) {
-    const response = await this.request<{ access_token: string; user: any }>('/auth/google', {
+    const response = await this.request<{ access_token: string; user: User }>('/auth/google', {
       method: 'POST',
       body: JSON.stringify({ token }),
     });
@@ -144,19 +146,19 @@ export class ApiClient {
   }
 
   // Transaction endpoints
-  async getTransactions(params?: any) {
-    const queryString = params ? '?' + new URLSearchParams(params).toString() : '';
+  async getTransactions(params?: Record<string, string>) {
+    const queryString = params ? '?' + new URLSearchParams(params as Record<string, string>).toString() : '';
     return this.request(`/transactions${queryString}`, { method: 'GET' });
   }
 
-  async createTransaction(transaction: any) {
+  async createTransaction(transaction: Omit<Transaction, 'id' | 'user_id' | 'created_at'>) {
     return this.request('/transactions', {
       method: 'POST',
       body: JSON.stringify(transaction),
     });
   }
 
-  async updateTransaction(id: string, updates: any) {
+  async updateTransaction(id: string, updates: Partial<Transaction>) {
     return this.request(`/transactions/${id}`, {
       method: 'PUT',
       body: JSON.stringify(updates),

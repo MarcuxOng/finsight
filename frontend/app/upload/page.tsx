@@ -85,8 +85,12 @@ export default function UploadPage() {
       const result = await api.uploadCSV(selectedFile);
       setUploadResult(result as UploadResult);
       setSelectedFile(null);
-    } catch (err: any) {
-      setError(err.message || 'Upload failed');
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message || 'Upload failed');
+      } else {
+        setError('Upload failed');
+      }
     } finally {
       setUploading(false);
     }
@@ -104,7 +108,8 @@ export default function UploadPage() {
       a.click();
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
-    } catch (err: any) {
+    } catch (err: unknown) {
+      console.error(err);
       setError('Failed to download template');
     }
   };
@@ -145,7 +150,7 @@ export default function UploadPage() {
               <li>Download the Excel template or prepare your own CSV/Excel file</li>
               <li>Fill in your transaction data with columns: date, description, amount, type (optional)</li>
               <li>Drag and drop the file below or click to browse</li>
-              <li>Click "Upload" to import your transactions</li>
+              <li>Click &quot;Upload&quot; to import your transactions</li>
             </ol>
             
             <button
@@ -372,7 +377,7 @@ export default function UploadPage() {
               </pre>
             </div>
             <p className="mt-3 text-sm text-gray-600">
-              <strong>Note:</strong> The 'type' column is optional. If not specified, transactions will be categorized as 'expense' by default. Both CSV and Excel (.xlsx) files are supported.
+              <strong>Note:</strong> The &apos;type&apos; column is optional. If not specified, transactions will be categorized as &apos;expense&apos; by default. Both CSV and Excel (.xlsx) files are supported.
             </p>
           </div>
         </div>
